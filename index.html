@@ -18,7 +18,6 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     html { scroll-behavior: smooth; }
 
     body {
@@ -136,20 +135,7 @@
       display: flex; align-items: center; justify-content: center;
       position: relative;
     }
-    /* Decorative landscape SVG */
-    .landscape-svg {
-      position: absolute; bottom: 0; left: 0; right: 0;
-    }
-    .hero-img-text {
-      position: relative; z-index: 2;
-      text-align: center; color: white;
-    }
-    .hero-img-text .big-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 8rem;
-      line-height: 1;
-      opacity: 0.15;
-    }
+    .landscape-svg { position: absolute; bottom: 0; left: 0; right: 0; }
     .hero-badge {
       position: absolute; bottom: 2rem; right: 2rem;
       background: var(--cream);
@@ -306,13 +292,6 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
-
-    /* Colors for gallery placeholders */
-    .g1 { background: linear-gradient(135deg, #2d4a3e, #5c8a7a); }
-    .g2 { background: linear-gradient(135deg, #7a9e8e, #a8c4b8); }
-    .g3 { background: linear-gradient(135deg, #c4793a, #e8a06a); }
-    .g4 { background: linear-gradient(135deg, #5c4a32, #8a7060); }
-    .g5 { background: linear-gradient(135deg, #a8c4b8, #d4e8e0); }
 
     /* LINKS / EXPLORE */
     #links {
@@ -502,247 +481,311 @@
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">Outdoorsy Chicago</div>
-  <ul class="nav-links">
-    <li><a href="#about">Who We Are</a></li>
-    <li><a href="#gallery">Gallery</a></li>
-    <li><a href="#links">Explore</a></li>
-    <li><a href="#survey">Join Us</a></li>
-  </ul>
-</nav>
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Outdoorsy Chicago</div>
+    <ul class="nav-links">
+      <li><a href="#about">Who We Are</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#links">Explore</a></li>
+      <li><a href="#survey">Join Us</a></li>
+    </ul>
+  </nav>
 
-<!-- HERO -->
-<section class="hero" id="home">
-  <div class="hero-left">
-    <p class="hero-tag">Chicago · Adventure · Community</p>
-    <h1 class="hero-title">Explore <em>beyond</em> the skyline.</h1>
-    <p class="hero-sub">For Chicagoans in their 20s and 30s who crave more than the city grid — from lakefront sunrises to weekend trails you've never heard of.</p>
-    <div class="hero-cta">
-      <a href="#survey" class="btn-primary">Join the Community</a>
-      <a href="#gallery" class="btn-secondary">See Adventures →</a>
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-left">
+      <p class="hero-tag">Chicago · Adventure · Community</p>
+      <h1 class="hero-title">Explore <em>beyond</em> the skyline.</h1>
+      <p class="hero-sub">For Chicagoans in their 20s and 30s who crave more than the city grid — from lakefront sunrises to weekend trails you've never heard of.</p>
+      <div class="hero-cta">
+        <a href="#survey" class="btn-primary">Join the Community</a>
+        <a href="#gallery" class="btn-secondary">See Adventures →</a>
+      </div>
     </div>
-  </div>
-  <div class="hero-right">
-    <div class="hero-img-placeholder">
-      <svg class="landscape-svg" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 400 L0 200 Q100 150 200 220 Q300 280 400 180 Q500 100 600 160 Q700 200 800 140 L800 400 Z" fill="rgba(26,46,38,0.6)"/>
-        <path d="M0 400 L0 260 Q150 200 300 250 Q450 290 600 230 Q700 200 800 220 L800 400 Z" fill="rgba(26,46,38,0.8)"/>
-        <circle cx="650" cy="80" r="50" fill="rgba(200,180,140,0.15)"/>
-        <circle cx="650" cy="80" r="35" fill="rgba(200,180,140,0.1)"/>
-      </svg>
+    <div class="hero-right">
+      <div class="hero-img-placeholder">
+        <svg class="landscape-svg" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 400 L0 200 Q100 150 200 220 Q300 280 400 180 Q500 100 600 160 Q700 200 800 140 L800 400 Z" fill="rgba(26,46,38,0.6)"/>
+          <path d="M0 400 L0 260 Q150 200 300 250 Q450 290 600 230 Q700 200 800 220 L800 400 Z" fill="rgba(26,46,38,0.8)"/>
+          <circle cx="650" cy="80" r="50" fill="rgba(200,180,140,0.15)"/>
+          <circle cx="650" cy="80" r="35" fill="rgba(200,180,140,0.1)"/>
+        </svg>
+      </div>
+      <div class="hero-badge">
+        <strong>200+</strong>
+        Chicagoans exploring together
+      </div>
     </div>
-    <div class="hero-badge">
-      <strong>200+</strong>
-      Chicagoans exploring together
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- TICKER -->
-<div class="ticker">
-  <div class="ticker-inner">
-    <span>🌿 Lakefront Hikes</span><span class="ticker-dot">✦</span>
-    <span>Weekend Camping</span><span class="ticker-dot">✦</span>
-    <span>Hidden City Trails</span><span class="ticker-dot">✦</span>
-    <span>Kayak the Chicago River</span><span class="ticker-dot">✦</span>
-    <span>Indiana Dunes Day Trips</span><span class="ticker-dot">✦</span>
-    <span>Stargazing Getaways</span><span class="ticker-dot">✦</span>
-    <span>Urban Exploration</span><span class="ticker-dot">✦</span>
-    <span>🌿 Lakefront Hikes</span><span class="ticker-dot">✦</span>
-    <span>Weekend Camping</span><span class="ticker-dot">✦</span>
-    <span>Hidden City Trails</span><span class="ticker-dot">✦</span>
-    <span>Kayak the Chicago River</span><span class="ticker-dot">✦</span>
-    <span>Indiana Dunes Day Trips</span><span class="ticker-dot">✦</span>
-    <span>Stargazing Getaways</span><span class="ticker-dot">✦</span>
-    <span>Urban Exploration</span><span class="ticker-dot">✦</span>
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span>🌿 Lakefront Hikes</span><span class="ticker-dot">✦</span>
+      <span>Weekend Camping</span><span class="ticker-dot">✦</span>
+      <span>Hidden City Trails</span><span class="ticker-dot">✦</span>
+      <span>Kayak the Chicago River</span><span class="ticker-dot">✦</span>
+      <span>Indiana Dunes Day Trips</span><span class="ticker-dot">✦</span>
+      <span>Stargazing Getaways</span><span class="ticker-dot">✦</span>
+      <span>Urban Exploration</span><span class="ticker-dot">✦</span>
+      <span>🌿 Lakefront Hikes</span><span class="ticker-dot">✦</span>
+      <span>Weekend Camping</span><span class="ticker-dot">✦</span>
+      <span>Hidden City Trails</span><span class="ticker-dot">✦</span>
+      <span>Kayak the Chicago River</span><span class="ticker-dot">✦</span>
+      <span>Indiana Dunes Day Trips</span><span class="ticker-dot">✦</span>
+      <span>Stargazing Getaways</span><span class="ticker-dot">✦</span>
+      <span>Urban Exploration</span><span class="ticker-dot">✦</span>
+    </div>
   </div>
-</div>
 
-<!-- WHO WE ARE -->
-<section id="about">
-  <div class="about-text fade-up">
-    <p class="section-label">Who We Are</p>
-    <h2 class="section-title">Born in the city,<br>drawn to the wild.</h2>
-    <p>We're a crew of Chicagoans — 20s and 30s somethings — who refuse to let city life be the whole story. Outdoorsy Chicago is where your neighborhood crew meets trail runners, kayakers, rooftop gardeners, and weekend wanderers.</p>
-    <p>Whether it's a sunrise at the Dunes, a midnight bonfire in the Northwoods, or finding a park you've never noticed in your own zip code — this is your community for all of it.</p>
-    <div class="about-stats">
-      <div class="stat-box">
-        <div class="stat-num">200+</div>
-        <div class="stat-label">Members</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num">48</div>
-        <div class="stat-label">Adventures Run</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num">12</div>
-        <div class="stat-label">Neighborhoods</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num">6</div>
-        <div class="stat-label">States Explored</div>
-      </div>
-    </div>
-  </div>
-  <div class="about-visual fade-up">
-    <div class="about-card g1">
-      <span>🌲 Into the woods</span>
-    </div>
-    <div class="about-card" style="background: var(--sky); color: var(--dark);">
-      <span>🚣 On the water</span>
-    </div>
-    <div class="about-card" style="background: var(--sand); color: var(--bark);">
-      <span>🌆 City trails</span>
-    </div>
-  </div>
-</section>
-
-<!-- GALLERY -->
-<section id="gallery">
-  <div class="fade-up">
-    <p class="section-label">Adventures</p>
-    <h2 class="section-title" style="color: var(--sand);">Where we've wandered.</h2>
-  </div>
-  <div class="gallery-grid fade-up">
-    <div class="gallery-item">
-      <div class="gallery-bg g1" style="height:100%; background: linear-gradient(135deg, #1a2e26 0%, #2d4a3e 40%, #5c8a7a 100%);"></div>
-      <div class="gallery-overlay"><span>Indiana Dunes — Summer '24</span></div>
-    </div>
-    <div class="gallery-item">
-      <div class="gallery-bg" style="height:100%; background: linear-gradient(135deg, #7a9e8e, #c4d8d0);"></div>
-      <div class="gallery-overlay"><span>Lakefront Trail</span></div>
-    </div>
-    <div class="gallery-item">
-      <div class="gallery-bg" style="height:100%; background: linear-gradient(160deg, #c4793a, #e8a06a, #f5d5a0);"></div>
-      <div class="gallery-overlay"><span>Fall Foliage — Starved Rock</span></div>
-    </div>
-    <div class="gallery-item">
-      <div class="gallery-bg" style="height:100%; background: linear-gradient(135deg, #5c4a32, #8a7060);"></div>
-      <div class="gallery-overlay"><span>Northwoods Camping</span></div>
-    </div>
-    <div class="gallery-item">
-      <div class="gallery-bg" style="height:100%; background: linear-gradient(135deg, #2d4a3e, #7a9e8e, #a8c4b8);"></div>
-      <div class="gallery-overlay"><span>Chicago River Kayak</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- LINKS -->
-<section id="links">
-  <p class="section-label">Explore</p>
-  <h2 class="section-title">Find your adventure.</h2>
-  <p>Everything you need to get out there — in the city and beyond.</p>
-  <div class="links-grid fade-up">
-    <a href="https://www.alltrails.com/us/illinois/chicago" class="link-card" target="_blank" rel="noopener noreferrer">
-      <span class="link-icon">🗺️</span>
-      <span class="link-label">Trail Maps</span>
-      <span class="link-desc">Curated routes in and around Chicago</span>
-    </a>
-    <a href="https://www.dnr.illinois.gov/parks/" class="link-card" target="_blank" rel="noopener noreferrer">
-      <span class="link-icon">🏕️</span>
-      <span class="link-label">Weekend Trips</span>
-      <span class="link-desc">Easy escapes from the city</span>
-    </a>
-    <a href="https://www.meetup.com/outdoorsy-chicago" class="link-card" target="_blank" rel="noopener noreferrer">
-      <span class="link-icon">📅</span>
-      <span class="link-label">Events</span>
-      <span class="link-desc">Upcoming group adventures</span>
-    </a>
-    <a href="https://instagram.com/outdoorsy_chicago" class="link-card" target="_blank" rel="noopener noreferrer">
-      <span class="link-icon">📸</span>
-      <span class="link-label">Instagram</span>
-      <span class="link-desc">Follow the journey @outdoorsy_chicago</span>
-    </a>
-  </div>
-</section>
-
-<!-- SURVEY / JOIN -->
-<section id="survey">
-  <div class="fade-up">
-    <p class="section-label">Join the Community</p>
-    <h2 class="section-title">Tell us about yourself.</h2>
-    <p>We're building something for adventurous Chicagoans like you. Share a bit about what you're into so we can plan adventures that actually get you off the couch.</p>
-    <p>Takes 2 minutes. No spam — just good trips.</p>
-  </div>
-  <div class="fade-up">
-    <form class="survey-form" onsubmit="handleSubmit(event)">
-      <div class="form-group">
-        <label>Your Name</label>
-        <input type="text" placeholder="First name is fine" required />
-      </div>
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" placeholder="you@email.com" required />
-      </div>
-      <div class="form-group">
-        <label>Your Neighborhood</label>
-        <input type="text" placeholder="Logan Square, Wicker Park, South Loop..." />
-      </div>
-      <div class="form-group">
-        <label>How do you like to explore?</label>
-        <div class="checkbox-group">
-          <label class="checkbox-item"><input type="checkbox" /><span>🥾 Hiking & Trails</span></label>
-          <label class="checkbox-item"><input type="checkbox" /><span>🚴 Biking the city</span></label>
-          <label class="checkbox-item"><input type="checkbox" /><span>🛶 Kayaking & water</span></label>
-          <label class="checkbox-item"><input type="checkbox" /><span>🏕️ Camping weekends</span></label>
-          <label class="checkbox-item"><input type="checkbox" /><span>🌆 Urban exploration</span></label>
-          <label class="checkbox-item"><input type="checkbox" /><span>🌄 Day trips out of the city</span></label>
+  <!-- WHO WE ARE -->
+  <section id="about">
+    <div class="about-text fade-up">
+      <p class="section-label">Who We Are</p>
+      <h2 class="section-title">Born in the city,<br>drawn to the wild.</h2>
+      <p>We're a crew of Chicagoans — 20s and 30s somethings — who refuse to let city life be the whole story. Outdoorsy Chicago is where your neighborhood crew meets trail runners, kayakers, rooftop gardeners, and weekend wanderers.</p>
+      <p>Whether it's a sunrise at the Dunes, a midnight bonfire in the Northwoods, or finding a park you've never noticed in your own zip code — this is your community for all of it.</p>
+      <div class="about-stats">
+        <div class="stat-box">
+          <div class="stat-num">200+</div>
+          <div class="stat-label">Members</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">48</div>
+          <div class="stat-label">Adventures Run</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">12</div>
+          <div class="stat-label">Neighborhoods</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">6</div>
+          <div class="stat-label">States Explored</div>
         </div>
       </div>
-      <div class="form-group">
-        <label>How far are you willing to travel?</label>
-        <select>
-          <option value="">Select one</option>
-          <option>Within Chicago (walking / biking distance)</option>
-          <option>1–2 hours from the city</option>
-          <option>2–4 hours (Indiana Dunes, Starved Rock, etc.)</option>
-          <option>Anywhere — I'm down for anything</option>
-        </select>
+    </div>
+    <div class="about-visual fade-up">
+      <div class="about-card" style="background: var(--forest); color: var(--sand); grid-row: span 2;">
+        <span>🌲 Into the woods</span>
       </div>
-      <div class="form-group">
-        <label>Anything else? (optional)</label>
-        <textarea placeholder="Dream trip, what you're hoping to find here, or just say hi..."></textarea>
+      <div class="about-card" style="background: var(--sky); color: var(--dark);">
+        <span>🚣 On the water</span>
       </div>
-      <button type="submit" class="btn-submit">Submit & Join →</button>
-      <div class="success-msg" id="success">
-        🌿 You're in! We'll be in touch with upcoming adventures.
+      <div class="about-card" style="background: var(--sand); color: var(--bark);">
+        <span>🌆 City trails</span>
       </div>
-    </form>
-  </div>
-</section>
+    </div>
+  </section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo">Outdoorsy Chicago</div>
-  <p>© 2025 Outdoorsy Chicago. Made with ❤️ on the Lakeside.</p>
-  <div class="footer-links">
-    <a href="#about">About</a>
-    <a href="#gallery">Gallery</a>
-    <a href="#links">Explore</a>
-    <a href="#survey">Join</a>
-    <a href="#">Instagram</a>
-  </div>
-</footer>
+  <!-- GALLERY -->
+  <section id="gallery">
+    <div class="fade-up">
+      <p class="section-label">Adventures</p>
+      <h2 class="section-title" style="color: var(--sand);">Where we've wandered.</h2>
+    </div>
+    <div class="gallery-grid fade-up">
+      <div class="gallery-item">
+        <div class="gallery-bg" style="height:100%; background: linear-gradient(135deg, #1a2e26 0%, #2d4a3e 40%, #5c8a7a 100%);"></div>
+        <div class="gallery-overlay"><span>Indiana Dunes — Summer '24</span></div>
+      </div>
+      <div class="gallery-item">
+        <div class="gallery-bg" style="height:100%; background: linear-gradient(135deg, #7a9e8e, #c4d8d0);"></div>
+        <div class="gallery-overlay"><span>Lakefront Trail</span></div>
+      </div>
+      <div class="gallery-item">
+        <div class="gallery-bg" style="height:100%; background: linear-gradient(160deg, #c4793a, #e8a06a, #f5d5a0);"></div>
+        <div class="gallery-overlay"><span>Fall Foliage — Starved Rock</span></div>
+      </div>
+      <div class="gallery-item">
+        <div class="gallery-bg" style="height:100%; background: linear-gradient(135deg, #5c4a32, #8a7060);"></div>
+        <div class="gallery-overlay"><span>Northwoods Camping</span></div>
+      </div>
+      <div class="gallery-item">
+        <div class="gallery-bg" style="height:100%; background: linear-gradient(135deg, #2d4a3e, #7a9e8e, #a8c4b8);"></div>
+        <div class="gallery-overlay"><span>Chicago River Kayak</span></div>
+      </div>
+    </div>
+  </section>
 
-<script>
-  // Fade-up scroll animations
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-      }
+  <!-- LINKS -->
+  <section id="links">
+    <p class="section-label">Explore</p>
+    <h2 class="section-title">Find your adventure.</h2>
+    <p>Everything you need to get out there — in the city and beyond.</p>
+    <div class="links-grid fade-up">
+      <a href="https://www.alltrails.com/us/illinois/chicago" class="link-card" target="_blank" rel="noopener noreferrer">
+        <span class="link-icon">🗺️</span>
+        <span class="link-label">Trail Maps</span>
+        <span class="link-desc">Curated routes in and around Chicago</span>
+      </a>
+      <a href="https://www.dnr.illinois.gov/parks/" class="link-card" target="_blank" rel="noopener noreferrer">
+        <span class="link-icon">🏕️</span>
+        <span class="link-label">Weekend Trips</span>
+        <span class="link-desc">Easy escapes from the city</span>
+      </a>
+      <a href="https://www.meetup.com/outdoorsy-chicago" class="link-card" target="_blank" rel="noopener noreferrer">
+        <span class="link-icon">📅</span>
+        <span class="link-label">Events</span>
+        <span class="link-desc">Upcoming group adventures</span>
+      </a>
+      <a href="https://instagram.com/outdoorsy_chicago" class="link-card" target="_blank" rel="noopener noreferrer">
+        <span class="link-icon">📸</span>
+        <span class="link-label">Instagram</span>
+        <span class="link-desc">Follow the journey @outdoorsy_chicago</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- SURVEY / JOIN -->
+  <section id="survey">
+    <div class="fade-up">
+      <p class="section-label">Join the Community</p>
+      <h2 class="section-title">Tell us about yourself.</h2>
+      <p>We're building something for adventurous Chicagoans like you. Share a bit about what you're into so we can plan adventures that actually get you off the couch.</p>
+      <p>Takes 2 minutes. No spam — just good trips.</p>
+    </div>
+
+    <div class="fade-up">
+      <form class="survey-form" id="survey-form">
+        <div class="form-group">
+          <label>Your Name</label>
+          <input id="name" type="text" placeholder="First name is fine" required />
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input id="email" type="email" placeholder="you@email.com" required />
+        </div>
+
+        <div class="form-group">
+          <label>Your Neighborhood</label>
+          <input id="location" type="text" placeholder="Logan Square, Wicker Park, South Loop..." />
+        </div>
+
+        <div class="form-group">
+          <label>How do you like to explore?</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" name="interests" value="Hiking & Trails" />
+              <span>🥾 Hiking & Trails</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="interests" value="Biking the city" />
+              <span>🚴 Biking the city</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="interests" value="Kayaking & water" />
+              <span>🛶 Kayaking & water</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="interests" value="Camping weekends" />
+              <span>🏕️ Camping weekends</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="interests" value="Urban exploration" />
+              <span>🌆 Urban exploration</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="interests" value="Day trips out of the city" />
+              <span>🌄 Day trips out of the city</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>How far are you willing to travel?</label>
+          <select id="travel-distance">
+            <option value="">Select one</option>
+            <option value="Within Chicago (walking / biking distance)">Within Chicago (walking / biking distance)</option>
+            <option value="1–2 hours from the city">1–2 hours from the city</option>
+            <option value="2–4 hours (Indiana Dunes, Starved Rock, etc.)">2–4 hours (Indiana Dunes, Starved Rock, etc.)</option>
+            <option value="Anywhere — I'm down for anything">Anywhere — I'm down for anything</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Anything else? (optional)</label>
+          <textarea id="comments" placeholder="Dream trip, what you're hoping to find here, or just say hi..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit">Submit & Join →</button>
+
+        <div class="success-msg" id="success">
+          🌿 You're in! We'll be in touch with upcoming adventures.
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Outdoorsy Chicago</div>
+    <p>© 2025 Outdoorsy Chicago. Made with ❤️ on the Lakeside.</p>
+    <div class="footer-links">
+      <a href="#about">About</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#links">Explore</a>
+      <a href="#survey">Join</a>
+      <a href="https://instagram.com/outdoorsy_chicago" target="_blank" rel="noopener noreferrer">Instagram</a>
+    </div>
+  </footer>
+
+  <script>
+    // Fade-up scroll animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) e.target.classList.add('visible');
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el));
+
+    // Google Form submit (keeps your current design, saves responses to Google)
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("survey-form");
+      const success = document.getElementById("success");
+      const submitBtn = form.querySelector(".btn-submit");
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        // Hide old success (in case user tries again after refresh/back)
+        success.style.display = "none";
+
+        const formData = new FormData();
+
+        // Entry IDs from your prefilled URL:
+        // entry.53137089   = name
+        // entry.244532844  = email
+        // entry.1350846399 = neighborhood/location
+        // entry.1537877528 = interests (checkboxes, repeated)
+        // entry.1650141886 = travel distance
+        // entry.230073189  = comments
+
+        formData.append("entry.53137089", document.getElementById("name").value);
+        formData.append("entry.244532844", document.getElementById("email").value);
+        formData.append("entry.1350846399", document.getElementById("location").value);
+
+        document.querySelectorAll('input[name="interests"]:checked').forEach((cb) => {
+          formData.append("entry.1537877528", cb.value);
+        });
+
+        formData.append("entry.1650141886", document.getElementById("travel-distance").value);
+        formData.append("entry.230073189", document.getElementById("comments").value);
+
+        fetch("https://docs.google.com/forms/d/e/1FAIpQLSfE6JX2ydRWGTiTwHfLnDBHYHfuFeqdTokNJeaUCb2WBXHuQw/formResponse", {
+          method: "POST",
+          mode: "no-cors",
+          body: formData
+        });
+
+        // UI updates
+        form.reset();
+        submitBtn.style.display = "none";
+        success.style.display = "block";
+      });
     });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-
-  // Form submit
-  function handleSubmit(e) {
-    e.preventDefault();
-    document.getElementById('success').style.display = 'block';
-    e.target.querySelector('.btn-submit').style.display = 'none';
-  }
-</script>
+  </script>
 </body>
 </html>
