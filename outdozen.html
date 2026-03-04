@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The OutDozen — Outdoorsy Chicago</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --forest: #2d4a3e;
+      --sage: #7a9e8e;
+      --sand: #e8dcc8;
+      --cream: #f5f0e8;
+      --bark: #5c4a32;
+      --sky: #a8c4b8;
+      --accent: #c4793a;
+      --dark: #1a2e26;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 3rem;
+      background: rgba(26, 46, 38, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(122,158,142,0.2);
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--sand);
+      font-style: italic;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(232,220,200,0.7);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--sand); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      background: var(--dark);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 8rem 3rem 6rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 80%, rgba(45,74,62,0.6) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(196,121,58,0.15) 0%, transparent 50%);
+    }
+    .hero-badge {
+      position: relative;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .badge-ring {
+      width: 120px; height: 120px;
+      border: 2px solid rgba(196,121,58,0.5);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .badge-ring::before {
+      content: '';
+      position: absolute; inset: 6px;
+      border: 1px solid rgba(196,121,58,0.25);
+      border-radius: 50%;
+    }
+    .badge-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .hero-tag {
+      position: relative;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 1.2rem;
+    }
+    .hero-title {
+      position: relative;
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3.5rem, 8vw, 7rem);
+      color: var(--sand);
+      line-height: 1;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.5rem;
+    }
+    .hero-title em {
+      color: var(--accent);
+      font-style: italic;
+    }
+    .hero-year {
+      position: relative;
+      font-size: 0.85rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--sky);
+      font-weight: 300;
+      margin-bottom: 2.5rem;
+    }
+    .hero-mission {
+      position: relative;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      line-height: 1.85;
+      color: rgba(232,220,200,0.75);
+      font-weight: 300;
+      max-width: 640px;
+      margin-bottom: 3rem;
+    }
+    .hero-stats {
+      position: relative;
+      display: flex;
+      gap: 3rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .hero-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .hero-stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .hero-stat-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(168,196,184,0.7);
+      font-weight: 500;
+    }
+
+    /* SECTIONS */
+    section { padding: 6rem 5rem; }
+    .section-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      color: var(--forest);
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+
+    /* HOW IT WORKS */
+    #how {
+      background: var(--cream);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    #how .body-text p {
+      font-size: 1rem;
+      line-height: 1.9;
+      color: var(--bark);
+      font-weight: 300;
+      margin-bottom: 1.2rem;
+    }
+    .rules-list {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .rule-item {
+      display: flex;
+      gap: 1.2rem;
+      align-items: flex-start;
+      padding: 1.2rem 0;
+      border-bottom: 1px solid rgba(122,158,142,0.2);
+    }
+    .rule-item:first-child { border-top: 1px solid rgba(122,158,142,0.2); }
+    .rule-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--accent);
+      line-height: 1;
+      min-width: 2rem;
+      padding-top: 0.1rem;
+    }
+    .rule-text {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--bark);
+      font-weight: 300;
+    }
+    .rule-text strong {
+      color: var(--forest);
+      font-weight: 500;
+    }
+
+    /* SCHEDULE */
+    #schedule {
+      background: var(--dark);
+    }
+    #schedule .section-title { color: var(--sand); }
+    #schedule .section-label { color: var(--sky); }
+    #schedule > .schedule-intro {
+      max-width: 700px;
+      margin-bottom: 3.5rem;
+    }
+    #schedule > .schedule-intro p {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: rgba(232,220,200,0.65);
+      font-weight: 300;
+    }
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(122,158,142,0.15);
+      border: 1px solid rgba(122,158,142,0.15);
+    }
+    .schedule-item {
+      background: rgba(26,46,38,0.6);
+      padding: 1.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: background 0.2s;
+    }
+    .schedule-item:hover { background: rgba(45,74,62,0.8); }
+    .schedule-item.tbd { opacity: 0.5; }
+    .sched-season {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--sky);
+      font-weight: 500;
+    }
+    .sched-icon { font-size: 1.6rem; margin: 0.3rem 0; }
+    .sched-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--sand);
+      line-height: 1.2;
+    }
+    .sched-detail {
+      font-size: 0.78rem;
+      color: rgba(168,196,184,0.6);
+      font-weight: 300;
+      margin-top: 0.2rem;
+    }
+    .sched-tag {
+      display: inline-block;
+      margin-top: 0.5rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(196,121,58,0.3);
+      padding: 0.2rem 0.5rem;
+      width: fit-content;
+    }
+
+    /* PATCHES & REWARDS */
+    #rewards {
+      background: var(--sand);
+    }
+    #rewards .section-title { margin-bottom: 0.5rem; }
+    .rewards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-top: 2.5rem;
+    }
+    .reward-card {
+      background: var(--cream);
+      padding: 2rem;
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+    .reward-icon {
+      font-size: 2.5rem;
+      flex-shrink: 0;
+    }
+    .reward-body h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--forest);
+      margin-bottom: 0.5rem;
+    }
+    .reward-body p {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--bark);
+      font-weight: 300;
+    }
+    .tattoo-card {
+      background: var(--forest);
+      color: var(--cream);
+      grid-column: span 2;
+      padding: 2.5rem;
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+    .tattoo-card .reward-icon { font-size: 3rem; }
+    .tattoo-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--sand);
+      margin-bottom: 0.6rem;
+    }
+    .tattoo-card p {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: rgba(232,220,200,0.75);
+      font-weight: 300;
+    }
+    .tattoo-card .pledge-name {
+      display: inline-block;
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* CTA */
+    #cta {
+      background: var(--forest);
+      text-align: center;
+      padding: 7rem 5rem;
+    }
+    #cta .section-label { color: var(--sky); }
+    #cta .section-title { color: var(--sand); margin-bottom: 1rem; }
+    #cta p {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: rgba(232,220,200,0.65);
+      font-weight: 300;
+      max-width: 520px;
+      margin: 0 auto 2.5rem;
+    }
+    .cta-buttons {
+      display: flex;
+      gap: 1.2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      padding: 0.9rem 2rem;
+      border: none; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+      display: inline-block;
+    }
+    .btn-primary:hover { background: #a86030; transform: translateY(-2px); }
+    .btn-outline {
+      background: transparent;
+      color: var(--sand);
+      padding: 0.9rem 2rem;
+      border: 1px solid rgba(232,220,200,0.3);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+      display: inline-block;
+    }
+    .btn-outline:hover { border-color: var(--sky); color: var(--sky); }
+
+    /* FOOTER */
+    footer {
+      background: var(--dark);
+      color: rgba(232,220,200,0.5);
+      padding: 2.5rem 5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    footer .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--sand);
+      font-style: italic;
+    }
+    footer .footer-links { display: flex; gap: 2rem; }
+    footer a { color: rgba(232,220,200,0.5); text-decoration: none; transition: color 0.2s; }
+    footer a:hover { color: var(--sky); }
+
+    /* ANIMATIONS */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      section { padding: 4rem 1.5rem; }
+      #how { grid-template-columns: 1fr; gap: 2.5rem; }
+      .schedule-grid { grid-template-columns: 1fr 1fr; }
+      .rewards-grid { grid-template-columns: 1fr; }
+      .tattoo-card { grid-column: span 1; flex-direction: column; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+      footer .footer-links { flex-wrap: wrap; justify-content: center; }
+      .hero-stats { gap: 2rem; }
+      #cta { padding: 5rem 1.5rem; }
+    }
+
+    @media (max-width: 480px) {
+      .schedule-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-logo">Outdoorsy Chicago</a>
+    <ul class="nav-links">
+      <li><a href="index.html#about">Who We Are</a></li>
+      <li><a href="index.html#gallery">Gallery</a></li>
+      <li><a href="index.html#events">Events</a></li>
+      <li><a href="outdozen.html" class="active">The OutDozen</a></li>
+      <li><a href="index.html#survey">Join Us</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-badge">
+      <div class="badge-ring">
+        <span class="badge-number">12</span>
+      </div>
+    </div>
+    <p class="hero-tag">Outdoorsy Chicago · 2026 Challenge</p>
+    <h1 class="hero-title">The <em>Out</em>Dozen</h1>
+    <p class="hero-year">12 Months · 12 Outings · 2026</p>
+    <p class="hero-mission">The OutDozen exists to get people outside together — one unique outing a month, all year long. Whether it's a snowy hike, a camping trip under the stars, or a run through the cold, we believe the outdoors is better with your people.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-num">12</span>
+        <span class="hero-stat-label">Months</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">12</span>
+        <span class="hero-stat-label">Required Outings</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">24</span>
+        <span class="hero-stat-label">Goal Outings</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="body-text fade-up">
+      <p class="section-label">The Mission</p>
+      <h2 class="section-title">One outing a month.<br>All year long.</h2>
+      <p>The OutDozen is a group outdoor challenge built for 2026. The vision is simple: get people outside together for unique outings all year long. Members commit to attending one approved outing per month for all 12 months — that's the dozen.</p>
+      <p>The goal is two outings per month, totaling 24 for the year. But the baseline is clear: one per month, every month, no excuses.</p>
+    </div>
+    <div class="fade-up">
+      <p class="section-label">The Rules</p>
+      <h2 class="section-title">What counts.</h2>
+      <div class="rules-list">
+        <div class="rule-item">
+          <span class="rule-num">01</span>
+          <p class="rule-text"><strong>One qualifying outing per month</strong> is required to stay in the challenge. Miss a month, and you're out.</p>
+        </div>
+        <div class="rule-item">
+          <span class="rule-num">02</span>
+          <p class="rule-text"><strong>Any OutDozen-branded event</strong> automatically qualifies. These are planned, group-wide outings on the schedule.</p>
+        </div>
+        <div class="rule-item">
+          <span class="rule-num">03</span>
+          <p class="rule-text"><strong>Camping trips count</strong> — but they must be open to the group via the general chat and run at least dusk to dawn.</p>
+        </div>
+        <div class="rule-item">
+          <span class="rule-num">04</span>
+          <p class="rule-text"><strong>The goal is 24 outings</strong> (two per month). Hit the minimum of 12 and you complete the challenge. Hit 24 and you're a legend.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2026 SCHEDULE -->
+  <section id="schedule">
+    <div class="schedule-intro fade-up">
+      <p class="section-label">2026 Schedule</p>
+      <h2 class="section-title">Winter & Spring lineup.</h2>
+      <p>The first half of the year is already taking shape. More outings will be announced as the seasons change — summer and fall schedules coming soon.</p>
+    </div>
+    <div class="schedule-grid fade-up">
+      <div class="schedule-item">
+        <span class="sched-season">Winter</span>
+        <span class="sched-icon">❄️</span>
+        <h3 class="sched-title">Snow Day</h3>
+        <p class="sched-detail">Get out in the cold — wherever the snow takes us.</p>
+        <span class="sched-tag">Qualifies</span>
+      </div>
+      <div class="schedule-item">
+        <span class="sched-season">Winter</span>
+        <span class="sched-icon">⛸️</span>
+        <h3 class="sched-title">Ice Skating</h3>
+        <p class="sched-detail">Group skate — city rinks or beyond.</p>
+        <span class="sched-tag">Qualifies</span>
+      </div>
+      <div class="schedule-item">
+        <span class="sched-season">Winter</span>
+        <span class="sched-icon">⛷️</span>
+        <h3 class="sched-title">Ski Trip</h3>
+        <p class="sched-detail">Overnight or day trip — skis and boards welcome.</p>
+        <span class="sched-tag">Qualifies</span>
+      </div>
+      <div class="schedule-item">
+        <span class="sched-season">Winter / Spring</span>
+        <span class="sched-icon">🥾</span>
+        <h3 class="sched-title">Snowshoeing</h3>
+        <p class="sched-detail">Strap in and explore trails covered in snow.</p>
+        <span class="sched-tag">Qualifies</span>
+      </div>
+      <div class="schedule-item">
+        <span class="sched-season">Spring</span>
+        <span class="sched-icon">⛳</span>
+        <h3 class="sched-title">TopGolf</h3>
+        <p class="sched-detail">A little friendly competition before the trails open up.</p>
+        <span class="sched-tag">Qualifies</span>
+      </div>
+      <div class="schedule-item">
+        <span class="sched-season">Spring</span>
+        <span class="sched-icon">🏃</span>
+        <h3 class="sched-title">7-Mile Run</h3>
+        <p class="sched-detail">A group run for those who like to earn the view.</p>
+        <span class="sched-tag">Qualifies</span>
+      </div>
+      <div class="schedule-item">
+        <span class="sched-season">April</span>
+        <span class="sched-icon">🌿</span>
+        <h3 class="sched-title">5-Mile Hike</h3>
+        <p class="sched-detail">Spring is here — time to get back on trail.</p>
+        <span class="sched-tag">Qualifies</span>
+      </div>
+      <div class="schedule-item tbd">
+        <span class="sched-season">Spring</span>
+        <span class="sched-icon">❓</span>
+        <h3 class="sched-title">TBD</h3>
+        <p class="sched-detail">One more to be announced — stay tuned.</p>
+        <span class="sched-tag">Coming Soon</span>
+      </div>
+      <div class="schedule-item tbd">
+        <span class="sched-season">Summer — Fall</span>
+        <span class="sched-icon">🌄</span>
+        <h3 class="sched-title">More Coming</h3>
+        <p class="sched-detail">Summer and fall schedules will be released as the year unfolds.</p>
+        <span class="sched-tag">Announced Later</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PATCHES & REWARDS -->
+  <section id="rewards">
+    <p class="section-label fade-up">Finish the Dozen</p>
+    <h2 class="section-title fade-up">Earn your patch.</h2>
+    <div class="rewards-grid fade-up">
+      <div class="reward-card">
+        <span class="reward-icon">🪡</span>
+        <div class="reward-body">
+          <h3>The OutDozen Patch</h3>
+          <p>Complete all 12 monthly outings and earn an official OutDozen patch to commemorate the year. Proof you did more stuff outside.</p>
+        </div>
+      </div>
+      <div class="reward-card">
+        <span class="reward-icon">🏆</span>
+        <div class="reward-body">
+          <h3>24-Outing Legend</h3>
+          <p>Hit the stretch goal of 24 outings — two per month, all year — and earn legend status in the group. Details on that recognition TBD.</p>
+        </div>
+      </div>
+      <div class="tattoo-card">
+        <span class="reward-icon">🖊️</span>
+        <div class="reward-body">
+          <h3>The Ultimate Pledge</h3>
+          <p>One member, Micah, has made a public pledge: if he completes the OutDozen challenge, he will get the OutDozen logo tattooed on his leg. Permanently. We will all be watching.</p>
+          <span class="pledge-name">— Micah's pledge, 2026</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta">
+    <p class="section-label fade-up">Ready?</p>
+    <h2 class="section-title fade-up">Let's do more stuff outside.</h2>
+    <p class="fade-up">12 months. 12 outings. The OutDozen starts now — join the community and commit to the challenge.</p>
+    <div class="cta-buttons fade-up">
+      <a href="index.html#survey" class="btn-primary">Join the Community →</a>
+      <a href="index.html#events" class="btn-outline">See Upcoming Events</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Outdoorsy Chicago</div>
+    <p>© 2025 Outdoorsy Chicago. Made with ❤️ on the Lakeside.</p>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="index.html#about">About</a>
+      <a href="index.html#events">Events</a>
+      <a href="outdozen.html">The OutDozen</a>
+      <a href="index.html#survey">Join</a>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) e.target.classList.add('visible');
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el));
+  </script>
+</body>
+</html>
