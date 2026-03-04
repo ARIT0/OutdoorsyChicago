@@ -753,31 +753,22 @@
         // Hide old success (in case user tries again after refresh/back)
         success.style.display = "none";
 
-        const formData = new FormData();
-
-        // Entry IDs from your prefilled URL:
-        // entry.53137089   = name
-        // entry.244532844  = email
-        // entry.1350846399 = neighborhood/location
-        // entry.1537877528 = interests (checkboxes, repeated)
-        // entry.1650141886 = travel distance
-        // entry.230073189  = comments
-
-        formData.append("entry.53137089", document.getElementById("name").value);
-        formData.append("entry.244532844", document.getElementById("email").value);
-        formData.append("entry.1350846399", document.getElementById("location").value);
+        const params = new URLSearchParams();
+        params.append("entry.53137089", document.getElementById("name").value);
+        params.append("entry.244532844", document.getElementById("email").value);
+        params.append("entry.1350846399", document.getElementById("location").value);
 
         document.querySelectorAll('input[name="interests"]:checked').forEach((cb) => {
-          formData.append("entry.1537877528", cb.value);
+          params.append("entry.1537877528", cb.value);
         });
 
-        formData.append("entry.1650141886", document.getElementById("travel-distance").value);
-        formData.append("entry.230073189", document.getElementById("comments").value);
+        params.append("entry.1650141886", document.getElementById("travel-distance").value);
+        params.append("entry.230073189", document.getElementById("comments").value);
 
         fetch("https://docs.google.com/forms/d/e/1FAIpQLSfE6JX2ydRWGTiTwHfLnDBHYHfuFeqdTokNJeaUCb2WBXHuQw/formResponse", {
           method: "POST",
           mode: "no-cors",
-          body: formData
+          body: params
         });
 
         // UI updates
