@@ -53,6 +53,53 @@
       transition: color 0.2s;
     }
     .nav-links a:hover { color: var(--accent); }
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 101;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--forest);
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: rgba(245, 240, 232, 0.97);
+      backdrop-filter: blur(12px);
+      padding: 5rem 2rem 2rem;
+      z-index: 99;
+      flex-direction: column;
+      gap: 0;
+      border-bottom: 1px solid rgba(122,158,142,0.2);
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bark);
+      text-decoration: none;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(122,158,142,0.15);
+      transition: color 0.2s;
+    }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a:hover { color: var(--accent); }
 
     /* HERO */
     .hero {
@@ -260,7 +307,7 @@
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: 260px 260px;
+      grid-template-rows: repeat(3, 260px);
       gap: 1rem;
       margin-top: 2.5rem;
     }
@@ -270,7 +317,7 @@
       cursor: pointer;
     }
     .gallery-item:first-child { grid-column: span 2; }
-    .gallery-item:last-child { grid-column: span 2; }
+    .gallery-item:nth-child(5) { grid-column: span 2; }
     .gallery-bg {
       width: 100%; height: 100%;
       transition: transform 0.5s ease;
@@ -512,6 +559,7 @@
     @media (max-width: 768px) {
       nav { padding: 1rem 1.5rem; }
       .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
       .hero { grid-template-columns: 1fr; }
       .hero-right { height: 50vw; }
       .hero-left { padding: 3rem 1.5rem; }
@@ -537,9 +585,23 @@
       <li><a href="#links">Explore</a></li>
       <li><a href="#events">Events</a></li>
       <li><a href="outdozen.html">The OutDozen</a></li>
+      <li><a href="outdozen_v2.html">OutDozen v2</a></li>
       <li><a href="#survey">Join Us</a></li>
     </ul>
+    <button class="nav-hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#about" class="mobile-link">Who We Are</a>
+    <a href="#gallery" class="mobile-link">Gallery</a>
+    <a href="#links" class="mobile-link">Explore</a>
+    <a href="#events" class="mobile-link">Events</a>
+    <a href="outdozen.html" class="mobile-link">The OutDozen</a>
+    <a href="outdozen_v2.html" class="mobile-link">OutDozen v2</a>
+    <a href="#survey" class="mobile-link">Join Us</a>
+  </div>
 
   <!-- HERO -->
   <section class="hero" id="home">
@@ -635,20 +697,24 @@
     </div>
     <div class="gallery-grid fade-up">
       <div class="gallery-item">
-        <img class="gallery-bg" src="images/indiana-dunes.jpg" alt="Indiana Dunes hike" />
-        <div class="gallery-overlay"><span>Indiana Dunes — Summer '24</span></div>
+        <img class="gallery-bg" src="images/cake.jpg" alt="Group celebration" />
+        <div class="gallery-overlay"><span>Group Celebration</span></div>
       </div>
       <div class="gallery-item">
-        <img class="gallery-bg" src="images/lakefront.jpg" alt="Lakefront Trail" />
-        <div class="gallery-overlay"><span>Lakefront Trail</span></div>
+        <img class="gallery-bg" src="images/promentoryFire.jpg" alt="Promontory Point bonfire" />
+        <div class="gallery-overlay"><span>Promontory Point — Bonfire Night</span></div>
       </div>
       <div class="gallery-item">
-        <img class="gallery-bg" src="images/starved-rock.jpg" alt="Fall foliage at Starved Rock" />
-        <div class="gallery-overlay"><span>Fall Foliage — Starved Rock</span></div>
+        <img class="gallery-bg" src="images/meetup.jpg" alt="Outdoorsy Chicago meetup" />
+        <div class="gallery-overlay"><span>Outdoorsy Chicago Meetup</span></div>
       </div>
       <div class="gallery-item">
         <img class="gallery-bg" src="images/northwoods.jpg" alt="Northwoods camping" />
         <div class="gallery-overlay"><span>Northwoods Camping</span></div>
+      </div>
+      <div class="gallery-item">
+        <img class="gallery-bg" src="images/cantigny.jpg" alt="Cantigny Park" />
+        <div class="gallery-overlay"><span>Cantigny Park</span></div>
       </div>
       <div class="gallery-item">
         <img class="gallery-bg" src="images/kayak.jpg" alt="Chicago River kayak" />
@@ -798,12 +864,27 @@
       <a href="#links">Explore</a>
       <a href="#events">Events</a>
       <a href="outdozen.html">The OutDozen</a>
+      <a href="outdozen_v2.html">OutDozen v2</a>
       <a href="#survey">Join</a>
       <a href="https://instagram.com/outdoorsy_chicago" target="_blank" rel="noopener noreferrer">Instagram</a>
     </div>
   </footer>
 
   <script>
+    // Hamburger menu toggle
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+    });
+    document.querySelectorAll('.mobile-link').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+      });
+    });
+
     // Fade-up scroll animations
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
