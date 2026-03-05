@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OutDozen — Outdoorsy Chicago</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Bebas+Neue&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --forest: #2C4A2E;
@@ -21,7 +21,7 @@
   body {
     background: var(--cream);
     color: var(--dark);
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     overflow-x: hidden;
   }
 
@@ -29,73 +29,57 @@
   .site-nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; justify-content: space-between; align-items: center;
-    padding: 1rem 2.5rem;
-    background: rgba(26,26,20,0.92);
+    padding: 1.2rem 3rem;
+    background: rgba(245, 240, 232, 0.85);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(196,162,101,0.15);
+    border-bottom: 1px solid rgba(122,158,142,0.2);
   }
   .site-nav-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.3rem;
-    letter-spacing: 0.12em;
-    color: var(--tan);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: #2d4a3e;
+    font-style: italic;
     text-decoration: none;
   }
-  .site-nav-links { display: flex; gap: 1.8rem; list-style: none; }
+  .site-nav-links { display: flex; gap: 2rem; list-style: none; }
   .site-nav-links a {
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(242,236,216,0.75);
+    color: #5c4a32;
     text-decoration: none;
     transition: color 0.2s;
   }
-  .site-nav-links a:hover, .site-nav-links a.active { color: var(--tan); }
+  .site-nav-links a:hover, .site-nav-links a.active { color: #c4793a; }
   .site-nav-hamburger {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    z-index: 101;
+    display: none; flex-direction: column; justify-content: center;
+    gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; z-index: 101;
   }
   .site-nav-hamburger span {
     display: block; width: 24px; height: 2px;
-    background: var(--tan);
+    background: #2d4a3e;
     transition: transform 0.3s, opacity 0.3s;
   }
   .site-nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   .site-nav-hamburger.open span:nth-child(2) { opacity: 0; }
   .site-nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
   .site-mobile-menu {
-    display: none;
-    position: fixed; top: 0; left: 0; right: 0;
-    background: rgba(26,26,20,0.97);
-    backdrop-filter: blur(12px);
-    padding: 5rem 2rem 2rem;
-    z-index: 99;
-    flex-direction: column;
-    gap: 0;
-    border-bottom: 1px solid rgba(196,162,101,0.2);
+    display: none; position: fixed; top: 0; left: 0; right: 0;
+    background: rgba(245, 240, 232, 0.97); backdrop-filter: blur(12px);
+    padding: 5rem 2rem 2rem; z-index: 99;
+    flex-direction: column; gap: 0;
+    border-bottom: 1px solid rgba(122,158,142,0.2);
   }
   .site-mobile-menu.open { display: flex; }
   .site-mobile-menu a {
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: rgba(242,236,216,0.8);
-    text-decoration: none;
-    padding: 1rem 0;
-    border-bottom: 1px solid rgba(196,162,101,0.15);
-    transition: color 0.2s;
+    font-size: 1rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #5c4a32;
+    text-decoration: none; padding: 1rem 0;
+    border-bottom: 1px solid rgba(122,158,142,0.15); transition: color 0.2s;
   }
   .site-mobile-menu a:last-child { border-bottom: none; }
-  .site-mobile-menu a:hover { color: var(--tan); }
+  .site-mobile-menu a:hover { color: #c4793a; }
 
   /* HERO */
   .hero {
@@ -780,10 +764,11 @@
 <nav class="site-nav">
   <a href="index.html" class="site-nav-logo">Outdoorsy Chicago</a>
   <ul class="site-nav-links">
-    <li><a href="index.html">Home</a></li>
+    <li><a href="index.html#about">Who We Are</a></li>
+    <li><a href="index.html#gallery">Gallery</a></li>
     <li><a href="index.html#events">Events</a></li>
     <li><a href="outdozen_v2.html" class="active">The OutDozen</a></li>
-    <li><a href="outdozen.html">Challenge Details</a></li>
+
     <li><a href="index.html#survey">Join Us</a></li>
   </ul>
   <button class="site-nav-hamburger" id="v2-hamburger" aria-label="Open menu">
@@ -792,10 +777,11 @@
 </nav>
 
 <div class="site-mobile-menu" id="v2-mobile-menu">
-  <a href="index.html" class="v2-mobile-link">Home</a>
+  <a href="index.html#about" class="v2-mobile-link">Who We Are</a>
+  <a href="index.html#gallery" class="v2-mobile-link">Gallery</a>
   <a href="index.html#events" class="v2-mobile-link">Events</a>
   <a href="outdozen_v2.html" class="v2-mobile-link">The OutDozen</a>
-  <a href="outdozen.html" class="v2-mobile-link">Challenge Details</a>
+
   <a href="index.html#survey" class="v2-mobile-link">Join Us</a>
 </div>
 
@@ -836,12 +822,12 @@
     <div class="rule-card">
       <div class="rule-num">01</div>
       <h3>Once a Month, Every Month</h3>
-      <p>Attend one approved outing each month for all 12 months of 2026. Miss a month and you're out of the running.</p>
+      <p>Attend one approved outing each month for all 12 months of 2026. Miss a month and double up in any following month.</p>
     </div>
     <div class="rule-card">
       <div class="rule-num">02</div>
       <h3>Qualifying Activities</h3>
-      <p>Any OutDozen-branded activity counts. Camping trips also count — as long as they're posted in the general chat and run at least dusk till dawn.</p>
+      <p>Any OutDozen-branded activity counts. Camping trips also count.</p>
     </div>
     <div class="rule-card">
       <div class="rule-num">03</div>
@@ -1005,12 +991,6 @@
         <div class="momentum-count">5</div>
         <h4>Winter Outings</h4>
         <p>Tackling snow, ice, and frozen falls — proving winter is no excuse to stay inside.</p>
-      </div>
-      <div class="momentum-card">
-        <span class="momentum-icon">👟</span>
-        <div class="momentum-count">0</div>
-        <h4>Members Eliminated</h4>
-        <p>Still everyone in the running. March is coming — don't be the first one out.</p>
       </div>
     </div>
   </div>

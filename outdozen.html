@@ -32,14 +32,14 @@
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       display: flex; justify-content: space-between; align-items: center;
       padding: 1.2rem 3rem;
-      background: rgba(26, 46, 38, 0.92);
+      background: rgba(245, 240, 232, 0.85);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(122,158,142,0.2);
     }
     .nav-logo {
       font-family: 'Playfair Display', serif;
-      font-size: 1.1rem;
-      color: var(--sand);
+      font-size: 1.5rem;
+      color: var(--forest);
       font-style: italic;
       text-decoration: none;
     }
@@ -49,22 +49,22 @@
       font-weight: 500;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: rgba(232,220,200,0.7);
+      color: var(--bark);
       text-decoration: none;
       transition: color 0.2s;
     }
-    .nav-links a:hover, .nav-links a.active { color: var(--sand); }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
     .nav-hamburger {
       display: none; flex-direction: column; justify-content: center;
       gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; z-index: 101;
     }
-    .nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--sand); transition: transform 0.3s, opacity 0.3s; }
+    .nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--forest); transition: transform 0.3s, opacity 0.3s; }
     .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
     .nav-hamburger.open span:nth-child(2) { opacity: 0; }
     .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
     .mobile-menu {
       display: none; position: fixed; top: 0; left: 0; right: 0;
-      background: rgba(26,46,38,0.97); backdrop-filter: blur(12px);
+      background: rgba(245, 240, 232, 0.97); backdrop-filter: blur(12px);
       padding: 5rem 2rem 2rem; z-index: 99;
       flex-direction: column; gap: 0;
       border-bottom: 1px solid rgba(122,158,142,0.2);
@@ -72,12 +72,12 @@
     .mobile-menu.open { display: flex; }
     .mobile-menu a {
       font-size: 1rem; font-weight: 500; letter-spacing: 0.08em;
-      text-transform: uppercase; color: rgba(232,220,200,0.8);
+      text-transform: uppercase; color: var(--bark);
       text-decoration: none; padding: 1rem 0;
       border-bottom: 1px solid rgba(122,158,142,0.15); transition: color 0.2s;
     }
     .mobile-menu a:last-child { border-bottom: none; }
-    .mobile-menu a:hover { color: var(--sand); }
+    .mobile-menu a:hover { color: var(--accent); }
 
     /* HERO */
     .hero {
@@ -501,10 +501,10 @@
   <nav>
     <a href="index.html" class="nav-logo">Outdoorsy Chicago</a>
     <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html#about">Who We Are</a></li>
+      <li><a href="index.html#gallery">Gallery</a></li>
       <li><a href="index.html#events">Events</a></li>
       <li><a href="outdozen_v2.html">The OutDozen</a></li>
-      <li><a href="outdozen.html" class="active">Challenge Details</a></li>
       <li><a href="index.html#survey">Join Us</a></li>
     </ul>
     <button class="nav-hamburger" id="oz-hamburger" aria-label="Open menu">
@@ -513,10 +513,10 @@
   </nav>
 
   <div class="mobile-menu" id="oz-mobile-menu">
-    <a href="index.html" class="oz-mobile-link">Home</a>
+    <a href="index.html#about" class="oz-mobile-link">Who We Are</a>
+    <a href="index.html#gallery" class="oz-mobile-link">Gallery</a>
     <a href="index.html#events" class="oz-mobile-link">Events</a>
     <a href="outdozen_v2.html" class="oz-mobile-link">The OutDozen</a>
-    <a href="outdozen.html" class="oz-mobile-link">Challenge Details</a>
     <a href="index.html#survey" class="oz-mobile-link">Join Us</a>
   </div>
 
@@ -703,7 +703,6 @@
       <a href="index.html#about">About</a>
       <a href="index.html#events">Events</a>
       <a href="outdozen_v2.html">The OutDozen</a>
-      <a href="outdozen.html">Challenge Details</a>
       <a href="index.html#survey">Join</a>
     </div>
   </footer>
