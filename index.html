@@ -286,6 +286,8 @@
     }
     .about-card {
       border-radius: 2px;
+      position: relative;
+      overflow: hidden;
       display: flex; align-items: flex-end;
       padding: 1rem;
       font-size: 0.75rem;
@@ -293,9 +295,22 @@
       letter-spacing: 0.05em;
       text-transform: uppercase;
     }
-    .about-card:nth-child(1) { background: var(--forest); color: var(--sand); grid-row: span 2; }
-    .about-card:nth-child(2) { background: var(--sage); color: var(--dark); }
-    .about-card:nth-child(3) { background: var(--sand); color: var(--bark); }
+    .about-card img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .about-card span {
+      position: relative; z-index: 1;
+      background: rgba(26,46,38,0.6);
+      color: var(--sand);
+      padding: 0.25rem 0.6rem;
+      border-radius: 2px;
+      backdrop-filter: blur(4px);
+    }
+    .about-card:nth-child(1) { grid-row: span 2; }
+    .about-card:nth-child(2) { background: var(--sage); }
+    .about-card:nth-child(3) { background: var(--sand); }
 
     /* GALLERY */
     #gallery {
@@ -688,13 +703,16 @@
       </div>
     </div>
     <div class="about-visual fade-up">
-      <div class="about-card" style="background: var(--forest); color: var(--sand); grid-row: span 2;">
+      <div class="about-card">
+        <img src="images/into-the-woods.svg" alt="Into the woods" />
         <span>🌲 Into the woods</span>
       </div>
-      <div class="about-card" style="background: var(--sky); color: var(--dark);">
+      <div class="about-card">
+        <img src="images/on-the-water.svg" alt="On the water" />
         <span>🚣 On the water</span>
       </div>
-      <div class="about-card" style="background: var(--sand); color: var(--bark);">
+      <div class="about-card">
+        <img src="images/city-trails.svg" alt="City trails" />
         <span>🌆 City trails</span>
       </div>
     </div>
@@ -849,7 +867,7 @@
   <!-- FOOTER -->
   <footer>
     <div class="footer-logo">Outdoorsy Chicago</div>
-    <p>© 2025 Outdoorsy Chicago. Made with ❤️ on the Lakeside.</p>
+    <p>© 2026 Outdoorsy Chicago. Made with ❤️ on the Lakeside.</p>
     <div class="footer-links">
       <a href="#about">About</a>
       <a href="#gallery">Gallery</a>

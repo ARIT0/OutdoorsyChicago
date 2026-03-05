@@ -1,0 +1,188 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 500" width="300" height="500">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#040d09"/>
+      <stop offset="100%" stop-color="#0f2018"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#e8a040" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#e8a040" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky background -->
+  <rect width="300" height="500" fill="url(#sky)"/>
+
+  <!-- Stars -->
+  <circle cx="150" cy="30"  r="1.5" fill="#e8dcc8" opacity="0.9"/>
+  <circle cx="50"  cy="20"  r="1"   fill="#e8dcc8" opacity="0.8"/>
+  <circle cx="250" cy="18"  r="1"   fill="#e8dcc8" opacity="0.8"/>
+  <circle cx="100" cy="45"  r="1.2" fill="#e8dcc8" opacity="0.7"/>
+  <circle cx="200" cy="40"  r="1.2" fill="#e8dcc8" opacity="0.7"/>
+  <circle cx="30"  cy="55"  r="1"   fill="#e8dcc8" opacity="0.6"/>
+  <circle cx="270" cy="50"  r="1"   fill="#e8dcc8" opacity="0.6"/>
+  <circle cx="130" cy="15"  r="1"   fill="#e8dcc8" opacity="0.75"/>
+  <circle cx="170" cy="12"  r="1"   fill="#e8dcc8" opacity="0.75"/>
+  <circle cx="80"  cy="35"  r="0.8" fill="#e8dcc8" opacity="0.55"/>
+  <circle cx="222" cy="28"  r="0.8" fill="#e8dcc8" opacity="0.55"/>
+
+  <!-- Moon -->
+  <circle cx="150" cy="75"  r="28"  fill="#e8dcc8" opacity="0.95"/>
+  <circle cx="162" cy="66"  r="22"  fill="#0d1a12"/>
+
+  <!-- ===================================================== -->
+  <!-- TREES — drawn back-to-front so ground covers the bases -->
+  <!-- Each tree: trunk rect + 3–5 overlapping tier polygons  -->
+  <!-- ===================================================== -->
+
+  <!-- === DISTANT / BACKGROUND TREES behind campsite === -->
+  <!-- Very dark, small — suggest depth behind the clearing -->
+
+  <!-- BG tree at x=120 (behind tent) -->
+  <rect x="118" y="352" width="3" height="12" fill="#09110b"/>
+  <polygon points="120,234  111,258  131,256" fill="#0c1610"/>
+  <polygon points="119,252  107,278  135,274" fill="#0c1610"/>
+  <polygon points="121,270  103,302  140,298" fill="#0c1610"/>
+  <polygon points="120,288  100,326  142,321" fill="#0b1510"/>
+
+  <!-- BG tree at x=186 (behind fire side) -->
+  <rect x="184" y="354" width="3" height="10" fill="#09110b"/>
+  <polygon points="186,240  177,263  197,261" fill="#0c1610"/>
+  <polygon points="185,258  173,284  201,280" fill="#0c1610"/>
+  <polygon points="187,276  169,304  207,299" fill="#0c1610"/>
+  <polygon points="186,294  166,326  209,321" fill="#0b1510"/>
+
+  <!-- === LEFT SIDE: near-clearing tree (x=88) — shorter === -->
+  <rect x="86" y="351" width="4" height="13" fill="#0d1710"/>
+  <polygon points="88,228  78,256  100,254" fill="#112014"/>
+  <polygon points="87,248  72,278  106,274" fill="#112014"/>
+  <polygon points="89,269  66,302  114,298" fill="#112014"/>
+  <polygon points="88,290   62,328  118,323" fill="#0f1c12"/>
+
+  <!-- === LEFT SIDE: mid background tree (x=32) === -->
+  <rect x="30" y="348" width="4" height="16" fill="#0d1710"/>
+  <polygon points="32,196  21,230  46,228"  fill="#152818"/>
+  <polygon points="31,220  14,258  52,254"  fill="#152818"/>
+  <polygon points="33,246   8,288  60,284"  fill="#152818"/>
+  <polygon points="32,272   3,320  64,315"  fill="#132414"/>
+
+  <!-- === LEFT SIDE: main mid tree (x=62), taller === -->
+  <rect x="59" y="344" width="5" height="20" fill="#101a0e"/>
+  <polygon points="62,148  47,194  79,190"  fill="#1e3624"/>
+  <polygon points="60,184  38,234  88,229"  fill="#1e3624"/>
+  <polygon points="63,220  30,272  97,267"  fill="#1e3624"/>
+  <polygon points="61,254  23,312 105,307"  fill="#1a3020"/>
+  <polygon points="62,283  17,350 113,344"  fill="#172c1c"/>
+
+  <!-- === LEFT EDGE: tall tree partially off-screen (x=6) === -->
+  <rect x="3" y="341" width="6" height="23" fill="#192818"/>
+  <polygon points="6,106  -12,158  26,154"  fill="#253c2a"/>
+  <polygon points="5,144  -20,202  23,198"  fill="#243a29"/>
+  <polygon points="7,182  -28,250  30,246"  fill="#213625"/>
+  <polygon points="6,220  -33,298  36,293"  fill="#1e3122"/>
+  <polygon points="6,255  -37,338  39,333"  fill="#1b2d1f"/>
+  <polygon points="6,284  -39,357  40,352"  fill="#192a1c"/>
+
+  <!-- === RIGHT SIDE: near-clearing tree (x=212) === -->
+  <rect x="210" y="351" width="4" height="13" fill="#0d1710"/>
+  <polygon points="212,230  201,257  225,255" fill="#112014"/>
+  <polygon points="211,250  195,278  231,274" fill="#112014"/>
+  <polygon points="213,270  189,302  238,298" fill="#112014"/>
+  <polygon points="212,290  184,326  242,321" fill="#0f1c12"/>
+
+  <!-- === RIGHT SIDE: mid background tree (x=268) === -->
+  <rect x="266" y="348" width="4" height="16" fill="#0d1710"/>
+  <polygon points="268,198  255,232  283,230" fill="#152818"/>
+  <polygon points="267,222  249,258  289,254" fill="#152818"/>
+  <polygon points="269,248  243,288  297,284" fill="#152818"/>
+  <polygon points="268,274  237,320  301,315" fill="#132414"/>
+
+  <!-- === RIGHT SIDE: main mid tree (x=238), taller === -->
+  <rect x="235" y="344" width="5" height="20" fill="#101a0e"/>
+  <polygon points="238,150  221,196  257,192" fill="#1e3624"/>
+  <polygon points="236,186  212,236  266,231" fill="#1e3624"/>
+  <polygon points="239,222  203,274  278,269" fill="#1e3624"/>
+  <polygon points="237,256  195,314  283,309" fill="#1a3020"/>
+  <polygon points="238,285  189,352  291,346" fill="#172c1c"/>
+
+  <!-- === RIGHT EDGE: tall tree partially off-screen (x=294) === -->
+  <rect x="291" y="341" width="6" height="23" fill="#192818"/>
+  <polygon points="294,110  274,162  316,158" fill="#253c2a"/>
+  <polygon points="295,147  265,203  326,199" fill="#243a29"/>
+  <polygon points="293,185  258,253  330,249" fill="#213625"/>
+  <polygon points="294,223  252,300  338,295" fill="#1e3122"/>
+  <polygon points="294,257  248,340  342,335" fill="#1b2d1f"/>
+  <polygon points="294,285  245,358  345,352" fill="#192a1c"/>
+
+  <!-- ===== FOREST FLOOR ===== -->
+  <!-- Natural irregular ground line, covers tree bases -->
+  <path d="M0,364 Q12,360 28,363 Q48,367 68,361 Q84,357 92,360
+           Q104,363 116,358 Q130,354 148,357 Q162,360 172,357
+           Q186,353 200,357 Q214,361 228,357 Q246,352 264,358
+           Q278,363 292,358 Q298,356 300,358
+           L300,500 L0,500 Z" fill="#0c1812"/>
+
+  <!-- Subtle second ground layer for depth -->
+  <path d="M0,374 Q60,370 120,375 Q180,380 240,374 Q270,371 300,374
+           L300,500 L0,500 Z" fill="#08100c"/>
+
+  <!-- ===== CLEARING — lighter patch where campsite sits ===== -->
+  <ellipse cx="150" cy="358" rx="88" ry="18" fill="#152018"/>
+  <ellipse cx="150" cy="353" rx="72" ry="12" fill="#1c2e20"/>
+
+  <!-- Low understory shrubs at tree bases for grounded feel -->
+  <ellipse cx="78"  cy="360" rx="16" ry="5" fill="#0f1e14"/>
+  <ellipse cx="218" cy="360" rx="15" ry="5" fill="#0f1e14"/>
+  <ellipse cx="50"  cy="363" rx="11" ry="4" fill="#0d1a12"/>
+  <ellipse cx="248" cy="362" rx="10" ry="4" fill="#0d1a12"/>
+
+  <!-- ===== CAMPFIRE GLOW ===== -->
+  <ellipse cx="168" cy="325" rx="40" ry="22" fill="url(#glow)"/>
+
+  <!-- Logs -->
+  <line x1="152" y1="334" x2="184" y2="332" stroke="#4a2e10" stroke-width="4" stroke-linecap="round"/>
+  <line x1="155" y1="337" x2="181" y2="329" stroke="#3a2008" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Flames -->
+  <path d="M160,332 Q162,320 165,313 Q167,308 168,314 Q170,307 172,313 Q175,320 173,330Z" fill="#e07828"/>
+  <path d="M163,332 Q165,321 168,315 Q170,310 171,316 Q172,322 171,330Z" fill="#f0a030"/>
+  <path d="M166,332 Q167,324 168,319 Q169,324 168,332Z" fill="#fff0a0" opacity="0.9"/>
+
+  <!-- Sparks -->
+  <circle cx="165" cy="305" r="1.2" fill="#f0c050" opacity="0.9"/>
+  <circle cx="171" cy="300" r="1"   fill="#e89030" opacity="0.8"/>
+  <circle cx="162" cy="297" r="0.8" fill="#f0c050" opacity="0.7"/>
+  <circle cx="174" cy="294" r="0.8" fill="#e89030" opacity="0.6"/>
+
+  <!-- ===== TENT ===== -->
+  <polygon points="96,350  120,312  144,350"  fill="#2d4a3e"/>
+  <polygon points="97,350  120,314  143,350"  fill="#3a5e50"/>
+  <!-- Door opening -->
+  <polygon points="115,350 122,334 129,350"   fill="#1a2e26"/>
+  <!-- Tent ridge highlight -->
+  <line x1="97" y1="350" x2="120" y2="314"   stroke="#4a7060" stroke-width="0.8" opacity="0.5"/>
+  <line x1="143" y1="350" x2="120" y2="314"  stroke="#4a7060" stroke-width="0.8" opacity="0.5"/>
+  <!-- Stakes -->
+  <line x1="96"  y1="350" x2="87"  y2="357"  stroke="#7a6040" stroke-width="1" opacity="0.7"/>
+  <line x1="144" y1="350" x2="153" y2="357"  stroke="#7a6040" stroke-width="1" opacity="0.7"/>
+
+  <!-- ===== PERSON sitting by fire ===== -->
+  <!-- Legs extended -->
+  <line x1="189" y1="345" x2="200" y2="350"  stroke="#1a2e26" stroke-width="4" stroke-linecap="round"/>
+  <line x1="189" y1="345" x2="196" y2="352"  stroke="#1a2e26" stroke-width="3.5" stroke-linecap="round" opacity="0.7"/>
+  <!-- Body -->
+  <ellipse cx="187" cy="338" rx="7" ry="8"   fill="#1a2e26"/>
+  <!-- Head -->
+  <circle  cx="184" cy="328" r="6"           fill="#1a2e26"/>
+  <!-- Arm reaching toward fire -->
+  <line x1="181" y1="337" x2="172" y2="334"  stroke="#1a2e26" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Fireflies -->
+  <circle cx="80"  cy="280" r="1.8" fill="#e8c870" opacity="0.85"/>
+  <circle cx="222" cy="270" r="1.8" fill="#e8c870" opacity="0.8"/>
+  <circle cx="95"  cy="320" r="1.5" fill="#c4793a" opacity="0.7"/>
+  <circle cx="210" cy="310" r="1.5" fill="#c4793a" opacity="0.7"/>
+
+  <!-- Bottom ground -->
+  <rect x="0" y="470" width="300" height="30" fill="#06100a"/>
+</svg>
