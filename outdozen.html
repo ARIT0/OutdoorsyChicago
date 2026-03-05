@@ -54,6 +54,30 @@
       transition: color 0.2s;
     }
     .nav-links a:hover, .nav-links a.active { color: var(--sand); }
+    .nav-hamburger {
+      display: none; flex-direction: column; justify-content: center;
+      gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; z-index: 101;
+    }
+    .nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--sand); transition: transform 0.3s, opacity 0.3s; }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobile-menu {
+      display: none; position: fixed; top: 0; left: 0; right: 0;
+      background: rgba(26,46,38,0.97); backdrop-filter: blur(12px);
+      padding: 5rem 2rem 2rem; z-index: 99;
+      flex-direction: column; gap: 0;
+      border-bottom: 1px solid rgba(122,158,142,0.2);
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-size: 1rem; font-weight: 500; letter-spacing: 0.08em;
+      text-transform: uppercase; color: rgba(232,220,200,0.8);
+      text-decoration: none; padding: 1rem 0;
+      border-bottom: 1px solid rgba(122,158,142,0.15); transition: color 0.2s;
+    }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a:hover { color: var(--sand); }
 
     /* HERO */
     .hero {
@@ -454,6 +478,7 @@
     @media (max-width: 768px) {
       nav { padding: 1rem 1.5rem; }
       .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
       section { padding: 4rem 1.5rem; }
       #how { grid-template-columns: 1fr; gap: 2.5rem; }
       .schedule-grid { grid-template-columns: 1fr 1fr; }
@@ -476,13 +501,24 @@
   <nav>
     <a href="index.html" class="nav-logo">Outdoorsy Chicago</a>
     <ul class="nav-links">
-      <li><a href="index.html#about">Who We Are</a></li>
-      <li><a href="index.html#gallery">Gallery</a></li>
+      <li><a href="index.html">Home</a></li>
       <li><a href="index.html#events">Events</a></li>
-      <li><a href="outdozen.html" class="active">The OutDozen</a></li>
+      <li><a href="outdozen_v2.html">The OutDozen</a></li>
+      <li><a href="outdozen.html" class="active">Challenge Details</a></li>
       <li><a href="index.html#survey">Join Us</a></li>
     </ul>
+    <button class="nav-hamburger" id="oz-hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+
+  <div class="mobile-menu" id="oz-mobile-menu">
+    <a href="index.html" class="oz-mobile-link">Home</a>
+    <a href="index.html#events" class="oz-mobile-link">Events</a>
+    <a href="outdozen_v2.html" class="oz-mobile-link">The OutDozen</a>
+    <a href="outdozen.html" class="oz-mobile-link">Challenge Details</a>
+    <a href="index.html#survey" class="oz-mobile-link">Join Us</a>
+  </div>
 
   <!-- HERO -->
   <section class="hero" id="home">
@@ -666,12 +702,27 @@
       <a href="index.html">Home</a>
       <a href="index.html#about">About</a>
       <a href="index.html#events">Events</a>
-      <a href="outdozen.html">The OutDozen</a>
+      <a href="outdozen_v2.html">The OutDozen</a>
+      <a href="outdozen.html">Challenge Details</a>
       <a href="index.html#survey">Join</a>
     </div>
   </footer>
 
   <script>
+    // Hamburger menu
+    const ozHamburger = document.getElementById('oz-hamburger');
+    const ozMenu = document.getElementById('oz-mobile-menu');
+    ozHamburger.addEventListener('click', () => {
+      ozHamburger.classList.toggle('open');
+      ozMenu.classList.toggle('open');
+    });
+    document.querySelectorAll('.oz-mobile-link').forEach(link => {
+      link.addEventListener('click', () => {
+        ozHamburger.classList.remove('open');
+        ozMenu.classList.remove('open');
+      });
+    });
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
         if (e.isIntersecting) e.target.classList.add('visible');

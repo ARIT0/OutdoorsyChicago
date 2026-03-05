@@ -25,6 +25,78 @@
     overflow-x: hidden;
   }
 
+  /* NAV */
+  .site-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 2.5rem;
+    background: rgba(26,26,20,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(196,162,101,0.15);
+  }
+  .site-nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.12em;
+    color: var(--tan);
+    text-decoration: none;
+  }
+  .site-nav-links { display: flex; gap: 1.8rem; list-style: none; }
+  .site-nav-links a {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(242,236,216,0.75);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .site-nav-links a:hover, .site-nav-links a.active { color: var(--tan); }
+  .site-nav-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    z-index: 101;
+  }
+  .site-nav-hamburger span {
+    display: block; width: 24px; height: 2px;
+    background: var(--tan);
+    transition: transform 0.3s, opacity 0.3s;
+  }
+  .site-nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .site-nav-hamburger.open span:nth-child(2) { opacity: 0; }
+  .site-nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .site-mobile-menu {
+    display: none;
+    position: fixed; top: 0; left: 0; right: 0;
+    background: rgba(26,26,20,0.97);
+    backdrop-filter: blur(12px);
+    padding: 5rem 2rem 2rem;
+    z-index: 99;
+    flex-direction: column;
+    gap: 0;
+    border-bottom: 1px solid rgba(196,162,101,0.2);
+  }
+  .site-mobile-menu.open { display: flex; }
+  .site-mobile-menu a {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(242,236,216,0.8);
+    text-decoration: none;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(196,162,101,0.15);
+    transition: color 0.2s;
+  }
+  .site-mobile-menu a:last-child { border-bottom: none; }
+  .site-mobile-menu a:hover { color: var(--tan); }
+
   /* HERO */
   .hero {
     background: var(--forest);
@@ -686,6 +758,8 @@
   }
 
   @media (max-width: 768px) {
+    .site-nav-links { display: none; }
+    .site-nav-hamburger { display: flex; }
     .schedule-grid { grid-template-columns: repeat(2, 1fr); }
     .hero-stats { gap: 28px; }
     .pins-grid { grid-template-columns: repeat(2, 1fr); gap: 28px; }
@@ -702,8 +776,31 @@
 </head>
 <body>
 
+<!-- NAV -->
+<nav class="site-nav">
+  <a href="index.html" class="site-nav-logo">Outdoorsy Chicago</a>
+  <ul class="site-nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="index.html#events">Events</a></li>
+    <li><a href="outdozen_v2.html" class="active">The OutDozen</a></li>
+    <li><a href="outdozen.html">Challenge Details</a></li>
+    <li><a href="index.html#survey">Join Us</a></li>
+  </ul>
+  <button class="site-nav-hamburger" id="v2-hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="site-mobile-menu" id="v2-mobile-menu">
+  <a href="index.html" class="v2-mobile-link">Home</a>
+  <a href="index.html#events" class="v2-mobile-link">Events</a>
+  <a href="outdozen_v2.html" class="v2-mobile-link">The OutDozen</a>
+  <a href="outdozen.html" class="v2-mobile-link">Challenge Details</a>
+  <a href="index.html#survey" class="v2-mobile-link">Join Us</a>
+</div>
+
 <!-- HERO -->
-<header class="hero">
+<header class="hero" style="padding-top: calc(60px + 5rem)">
   <div class="hero-badge">Outdoorsy Chicago • 2026 Challenge</div>
   <h1>The<span>OutDozen</span></h1>
   <p class="hero-sub">One unique outdoor outing every month, all year long — done together.</p>
@@ -969,6 +1066,20 @@
 </footer>
 
 <script>
+  // Hamburger menu
+  const v2Hamburger = document.getElementById('v2-hamburger');
+  const v2Menu = document.getElementById('v2-mobile-menu');
+  v2Hamburger.addEventListener('click', () => {
+    v2Hamburger.classList.toggle('open');
+    v2Menu.classList.toggle('open');
+  });
+  document.querySelectorAll('.v2-mobile-link').forEach(link => {
+    link.addEventListener('click', () => {
+      v2Hamburger.classList.remove('open');
+      v2Menu.classList.remove('open');
+    });
+  });
+
   // Scroll reveal
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
