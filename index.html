@@ -3,7 +3,134 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Outdoorsy Chicago</title>
+
+  <!-- EDIT YOUR SEO SETTINGS in seo-config.js -->
+  <title>Outdoorsy Chicago | Outdoor Adventures &amp; Community for Chicagoans</title>
+  <meta name="description" content="Join 300+ Chicagoans exploring hiking, kayaking, camping, and day trips. Outdoorsy Chicago is the community for adventurous 20s &amp; 30s in the city." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.outdoorsychicago.com/" />
+
+  <!-- Open Graph (controls how link previews look when shared) -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://www.outdoorsychicago.com/" />
+  <meta property="og:site_name"   content="Outdoorsy Chicago" />
+  <meta property="og:title"       content="Outdoorsy Chicago | Outdoor Adventures &amp; Community for Chicagoans" />
+  <meta property="og:description" content="Join 300+ Chicagoans exploring hiking, kayaking, camping, and day trips. Outdoorsy Chicago is the community for adventurous 20s &amp; 30s in the city." />
+  <meta property="og:image"       content="https://www.outdoorsychicago.com/images/og-outdoorsy-chicago.jpg" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale"      content="en_US" />
+
+  <!-- Favicon (place a favicon.png in /images/) -->
+  <link rel="icon"             href="/images/favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/images/favicon.png" />
+
+  <!-- Structured Data: Organization + WebSite + LocalBusiness -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.outdoorsychicago.com/#organization",
+        "name": "Outdoorsy Chicago",
+        "url": "https://www.outdoorsychicago.com",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://www.outdoorsychicago.com/images/favicon.png"
+        },
+        "description": "Outdoorsy Chicago is a community for Chicagoans in their 20s and 30s who love outdoor adventures — hiking, kayaking, camping, cycling, and day trips from Chicago.",
+        "email": "outdoorsychicago@gmail.com",
+        "areaServed": ["Chicago, Illinois", "Chicagoland", "Indiana Dunes", "Starved Rock", "Northern Illinois"],
+        "sameAs": [
+          "https://www.instagram.com/outdoorsy_chicago",
+          "https://www.meetup.com/outdoorsy-chicago"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://www.outdoorsychicago.com/#website",
+        "url": "https://www.outdoorsychicago.com",
+        "name": "Outdoorsy Chicago",
+        "publisher": { "@id": "https://www.outdoorsychicago.com/#organization" }
+      },
+      {
+        "@type": "LocalBusiness",
+        "@id": "https://www.outdoorsychicago.com/#localbusiness",
+        "name": "Outdoorsy Chicago",
+        "url": "https://www.outdoorsychicago.com",
+        "description": "Outdoorsy Chicago organizes outdoor adventures and community events for Chicagoans — including hiking, kayaking, camping, cycling, and day trips to Indiana Dunes and Starved Rock.",
+        "email": "outdoorsychicago@gmail.com",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Chicago",
+          "addressRegion": "IL",
+          "addressCountry": "US"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 41.8781,
+          "longitude": -87.6298
+        },
+        "areaServed": [
+          { "@type": "City", "name": "Chicago" },
+          { "@type": "State", "name": "Illinois" }
+        ],
+        "priceRange": "Free",
+        "sameAs": [
+          "https://www.instagram.com/outdoorsy_chicago",
+          "https://www.meetup.com/outdoorsy-chicago"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is Outdoorsy Chicago?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Outdoorsy Chicago is a community of 300+ Chicagoans in their 20s and 30s who organize outdoor adventures together — including hiking, kayaking, camping, cycling, and day trips to places like Indiana Dunes and Starved Rock State Park."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I join Outdoorsy Chicago?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "You can join by filling out the form at outdoorsychicago.com. Events are also posted on the group's Meetup.com page and Google Calendar."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What outdoor activities does Outdoorsy Chicago do?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The group organizes hiking and trail walks, kayaking on the Chicago River and Lake Michigan, camping weekends, cycling trips, lakefront bonfires, Indiana Dunes day trips, and stargazing getaways."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Outdoorsy Chicago free to join?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, joining the Outdoorsy Chicago community is free. Individual events may have their own costs depending on the activity."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the OutDozen challenge?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The OutDozen is Outdoorsy Chicago's bucket list challenge — 12 outdoor experiences to complete across Chicago and the surrounding region, including camping, kayaking, and hiking iconic local spots."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -607,13 +734,14 @@
 <body>
 
   <!-- NAV -->
+  <header>
   <nav>
     <div class="nav-logo">Outdoorsy Chicago</div>
     <ul class="nav-links">
       <li><a href="#about">Who We Are</a></li>
       <li><a href="#gallery">Gallery</a></li>
       <li><a href="#events">Events</a></li>
-      <li><a href="outdozen_v2.html">The OutDozen</a></li>
+      <li><a href="/outdozen">The OutDozen</a></li>
       <!-- <li><a href="games.html">Games</a></li> -->
       <li><a href="#survey">Join Us</a></li>
     </ul>
@@ -626,10 +754,13 @@
     <a href="#about" class="mobile-link">Who We Are</a>
     <a href="#gallery" class="mobile-link">Gallery</a>
     <a href="#events" class="mobile-link">Events</a>
-    <a href="outdozen_v2.html" class="mobile-link">The OutDozen</a>
+    <a href="/outdozen" class="mobile-link">The OutDozen</a>
     <!-- <a href="games.html" class="mobile-link">Games</a> -->
     <a href="#survey" class="mobile-link">Join Us</a>
   </div>
+  </header>
+
+  <main>
 
   <!-- HERO -->
   <section class="hero" id="home">
@@ -706,15 +837,15 @@
     </div>
     <div class="about-visual fade-up">
       <div class="about-card">
-        <img src="images/into-the-woods.svg" alt="Into the woods" />
+        <img src="images/into-the-woods.svg" alt="Forest camping scene — Outdoorsy Chicago hiking and trail adventures" />
         <span>🌲 Into the woods</span>
       </div>
       <div class="about-card">
-        <img src="images/on-the-water.svg" alt="On the water" />
+        <img src="images/on-the-water.svg" alt="Morning kayaking on Lake Michigan with Chicago skyline — Outdoorsy Chicago water adventures" />
         <span>🚣 On the water</span>
       </div>
       <div class="about-card">
-        <img src="images/city-trails.svg" alt="City trails" />
+        <img src="images/city-trails.svg" alt="Cyclist on Chicago lakefront trail at dusk — Outdoorsy Chicago urban cycling routes" />
         <span>🌆 City trails</span>
       </div>
     </div>
@@ -866,6 +997,8 @@
     </div>
   </section>
 
+  </main>
+
   <!-- FOOTER -->
   <footer>
     <div class="footer-logo">Outdoorsy Chicago</div>
@@ -875,7 +1008,7 @@
       <a href="#gallery">Gallery</a>
       <a href="#links">Explore</a>
       <a href="#events">Events</a>
-      <a href="outdozen_v2.html">The OutDozen</a>
+      <a href="/outdozen">The OutDozen</a>
       <!-- <a href="games.html">Games</a> -->
       <a href="#survey">Join</a>
       <a href="https://instagram.com/outdoorsy_chicago" target="_blank" rel="noopener noreferrer">Instagram</a>

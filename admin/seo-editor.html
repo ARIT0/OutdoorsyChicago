@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEO Editor — Outdoorsy Chicago</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0ede8;
+      color: #1a2e26;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #2d4a3e;
+      color: #f5f0e8;
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    header h1 { font-size: 1.2rem; font-weight: 600; letter-spacing: 0.02em; }
+    header span { font-size: 0.8rem; opacity: 0.6; margin-left: auto; }
+
+    .tab-nav {
+      background: #1a2e26;
+      display: flex;
+      padding: 0 2rem;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: none; border: none;
+      color: rgba(245,240,232,0.55);
+      font-family: inherit; font-size: 0.82rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.9rem 1.4rem; cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: #f5f0e8; }
+    .tab-btn.active { color: #f5f0e8; border-bottom-color: #c4793a; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .container { max-width: 800px; margin: 2rem auto; padding: 0 1.5rem 5rem; }
+
+    .info-bar {
+      background: #e8f0ed; border-left: 3px solid #2d4a3e;
+      padding: 0.75rem 1rem; font-size: 0.82rem; color: #3a5a4a;
+      margin-bottom: 2rem; line-height: 1.6;
+    }
+
+    /* Section headers within a page tab */
+    .section-heading {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em;
+      text-transform: uppercase; color: #888;
+      margin: 2rem 0 0.75rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .section-heading::after {
+      content: ''; flex: 1; height: 1px; background: #ddd;
+    }
+
+    .page-card {
+      background: white; border-radius: 6px; margin-bottom: 1.25rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden;
+    }
+    .page-card-header {
+      background: #2d4a3e; color: #f5f0e8;
+      padding: 0.75rem 1.25rem;
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 0.8rem; font-weight: 600;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .page-card-header .badge {
+      margin-left: auto; font-size: 0.7rem; opacity: 0.6;
+      font-weight: 400; text-transform: none; letter-spacing: 0;
+    }
+    .page-card-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+
+    .field { display: flex; flex-direction: column; gap: 0.3rem; }
+    label {
+      font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #5c4a32;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .char-count { margin-left: auto; font-weight: 400; font-size: 0.7rem; text-transform: none; letter-spacing: 0; }
+    .char-count.ok   { color: #2d7a4e; }
+    .char-count.warn { color: #c4793a; }
+    .char-count.over { color: #c0392b; }
+
+    input[type="text"], input[type="url"], input[type="date"], textarea, select {
+      width: 100%; border: 1px solid #d0c8bc; border-radius: 4px;
+      padding: 0.6rem 0.75rem; font-family: inherit; font-size: 0.9rem;
+      color: #1a2e26; background: #faf9f6; transition: border-color 0.15s; resize: vertical;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none; border-color: #2d4a3e; background: white;
+    }
+    input:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* Google preview */
+    .preview-box {
+      background: #f8f8f8; border: 1px solid #e0ddd8;
+      border-radius: 4px; padding: 0.85rem 1rem;
+    }
+    .preview-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #999; margin-bottom: 0.5rem; }
+    .preview-title { font-size: 1rem; color: #1a0dab; text-decoration: underline; line-height: 1.3; margin-bottom: 0.15rem; word-break: break-word; }
+    .preview-url   { font-size: 0.72rem; color: #006621; margin-bottom: 0.3rem; }
+    .preview-desc  { font-size: 0.8rem; color: #545454; line-height: 1.5; word-break: break-word; }
+
+    /* OG card preview */
+    .og-preview { border: 1px solid #e0ddd8; border-radius: 6px; overflow: hidden; font-size: 0.82rem; }
+    .og-preview-img {
+      width: 100%; height: 130px; background: #2d4a3e;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(245,240,232,0.35); font-size: 0.72rem; letter-spacing: 0.08em;
+      text-transform: uppercase; position: relative; overflow: hidden;
+    }
+    .og-preview-img img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; display:none; }
+    .og-preview-body { padding: 0.55rem 0.75rem; background: #f8f8f8; }
+    .og-preview-site  { font-size: 0.68rem; color: #999; text-transform: uppercase; letter-spacing: 0.05em; }
+    .og-preview-title { font-weight: 700; color: #1a2e26; margin: 0.1rem 0; font-size: 0.88rem; }
+    .og-preview-desc  { color: #555; line-height: 1.4; font-size: 0.78rem; }
+
+    /* Two col */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 560px) { .two-col { grid-template-columns: 1fr; } }
+
+    .divider { border: none; border-top: 1px solid #eee; margin: 0.1rem 0; }
+
+    /* FAQ */
+    .faq-item { border: 1px solid #e0ddd8; border-radius: 4px; overflow: hidden; margin-bottom: 0.75rem; }
+    .faq-item-header {
+      background: #f5f0e8; padding: 0.5rem 0.85rem;
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #5c4a32;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .faq-item-body { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; background: white; }
+    .faq-remove {
+      margin-left: auto; background: none; border: 1px solid #e07050;
+      color: #e07050; font-size: 0.68rem; padding: 0.2rem 0.5rem;
+      border-radius: 3px; cursor: pointer; font-family: inherit; font-weight: 600;
+    }
+    .faq-remove:hover { background: #fff0ee; }
+    .btn-add-faq {
+      background: #e8f0ed; border: 1px dashed #7a9e8e; color: #2d4a3e;
+      width: 100%; padding: 0.6rem; border-radius: 4px;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-add-faq:hover { background: #d8ece4; }
+
+    /* Buttons */
+    .actions {
+      background: white; border-radius: 6px; padding: 1.25rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      display: flex; flex-direction: column; gap: 0.75rem;
+    }
+    .actions h2 {
+      font-size: 0.82rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: #2d4a3e;
+    }
+    .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    button {
+      padding: 0.65rem 1.4rem; border: none; border-radius: 4px;
+      font-family: inherit; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; letter-spacing: 0.03em; transition: background 0.15s, transform 0.1s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-primary   { background: #2d4a3e; color: white; }
+    .btn-primary:hover { background: #1a2e26; }
+    .btn-secondary { background: #e8dcc8; color: #2d4a3e; }
+    .btn-secondary:hover { background: #d8ccb8; }
+    .btn-accent    { background: #c4793a; color: white; }
+    .btn-accent:hover { background: #a86030; }
+
+    .output-area { display: none; flex-direction: column; gap: 0.5rem; }
+    .output-area.visible { display: flex; }
+    .output-area textarea {
+      font-family: 'Courier New', monospace; font-size: 0.76rem;
+      background: #1a2e26; color: #a8c4b8; border: none;
+      border-radius: 4px; padding: 1rem; min-height: 200px; resize: vertical;
+    }
+
+    .toast {
+      display: none; background: #2d7a4e; color: white;
+      padding: 0.6rem 1rem; border-radius: 4px;
+      font-size: 0.82rem; font-weight: 500;
+    }
+    .toast.visible { display: block; }
+
+    .step-note { font-size: 0.78rem; color: #888; line-height: 1.6; }
+    .step-note strong { color: #2d4a3e; }
+    code { font-size: 0.85em; background: #f0ede8; padding: 0.1em 0.3em; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+  <h1>SEO Editor — Outdoorsy Chicago</h1>
+  <span>Local admin tool</span>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('home', this)">🏠 Home Page</button>
+  <button class="tab-btn" onclick="switchTab('outdozen', this)">🌲 OutDozen Page</button>
+  <button class="tab-btn" onclick="switchTab('sitewide', this)">🌐 Site-Wide</button>
+  <button class="tab-btn" onclick="switchTab('save', this)">💾 Save &amp; Export</button>
+</nav>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB: HOME PAGE  (index.html)
+══════════════════════════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-home">
+<div class="container">
+
+  <div class="info-bar">
+    Everything here controls what appears on <strong>outdoorsychicago.com/</strong> — the main page. Changes affect Google search results, link previews when shared, and AI engine citations.
+  </div>
+
+  <!-- Search appearance -->
+  <div class="section-heading">Search Appearance</div>
+  <div class="page-card">
+    <div class="page-card-header">📋 Title &amp; Meta Description <span class="badge">index.html &lt;head&gt;</span></div>
+    <div class="page-card-body">
+      <div class="field">
+        <label>Page Title <span class="char-count" id="home-title-count"></span></label>
+        <input type="text" id="home-title" maxlength="120"
+          value="Outdoorsy Chicago | Chicago Outdoor Adventure Community"
+          oninput="countChars('home-title',60); syncPreview('home')" />
+        <div class="step-note">Keep under <strong>60 characters</strong> — Google truncates longer titles in search results.</div>
+      </div>
+      <div class="field">
+        <label>Meta Description <span class="char-count" id="home-desc-count"></span></label>
+        <textarea id="home-desc" rows="3" maxlength="200"
+          oninput="countChars('home-desc',160); syncPreview('home')"
+          >Join 300+ Chicagoans exploring hiking, kayaking, camping, and day trips. Outdoorsy Chicago is the community for adventurous 20s &amp; 30s in the city.</textarea>
+      </div>
+      <hr class="divider" />
+      <div class="preview-box">
+        <div class="preview-label">Google search result preview</div>
+        <div class="preview-title" id="home-preview-title"></div>
+        <div class="preview-url">outdoorsychicago.com</div>
+        <div class="preview-desc"  id="home-preview-desc"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share image -->
+  <div class="section-heading">Link Share Preview (OG Image)</div>
+  <div class="page-card">
+    <div class="page-card-header">🖼 Share Image <span class="badge">og:image meta tag</span></div>
+    <div class="page-card-body">
+      <div class="two-col">
+        <div class="field">
+          <label>Image URL</label>
+          <input type="url" id="home-og-image"
+            value="https://www.outdoorsychicago.com/images/og-outdoorsy-chicago.jpg"
+            oninput="syncOgPreview('home')"
+            placeholder="https://www.outdoorsychicago.com/images/og-outdoorsy-chicago.jpg" />
+          <div class="step-note" style="margin-top:0.4rem;">Add your image to <code>/images/</code> and paste the full URL. Best size: <strong>1200 × 630 px</strong>.</div>
+        </div>
+        <div class="og-preview">
+          <div class="og-preview-img" id="home-og-wrap">
+            <span id="home-og-placeholder">No image</span>
+            <img id="home-og-img" src="" alt=""
+              onload="this.style.display='block'; document.getElementById('home-og-placeholder').style.display='none';"
+              onerror="this.style.display='none'; document.getElementById('home-og-placeholder').style.display='block';" />
+          </div>
+          <div class="og-preview-body">
+            <div class="og-preview-site">outdoorsychicago.com</div>
+            <div class="og-preview-title" id="home-og-title">Outdoorsy Chicago</div>
+            <div class="og-preview-desc"  id="home-og-desc">Join the community.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- About section images -->
+  <div class="section-heading">Who We Are — Image Alt Text</div>
+  <div class="page-card">
+    <div class="page-card-header">🖼 About Section Images <span class="badge">3 SVG cards in index.html</span></div>
+    <div class="page-card-body">
+      <div class="step-note">Alt text is read by Google Image Search and screen readers. Be specific and descriptive.</div>
+      <div class="field">
+        <label>Into the Woods (forest/camping SVG) <span class="char-count" id="alt-woods-count"></span></label>
+        <input type="text" id="alt-woods" maxlength="200"
+          value="Forest camping scene — Outdoorsy Chicago hiking and trail adventures"
+          oninput="countAlt('alt-woods')" />
+      </div>
+      <div class="field">
+        <label>On the Water (kayak/skyline SVG) <span class="char-count" id="alt-water-count"></span></label>
+        <input type="text" id="alt-water" maxlength="200"
+          value="Morning kayaking on Lake Michigan with Chicago skyline — Outdoorsy Chicago water adventures"
+          oninput="countAlt('alt-water')" />
+      </div>
+      <div class="field">
+        <label>City Trails (cyclist/dusk SVG) <span class="char-count" id="alt-city-count"></span></label>
+        <input type="text" id="alt-city" maxlength="200"
+          value="Cyclist on Chicago lakefront trail at dusk — Outdoorsy Chicago urban cycling routes"
+          oninput="countAlt('alt-city')" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Gallery images -->
+  <div class="section-heading">Gallery — Local Photo Captions &amp; Alt Text</div>
+  <div class="page-card">
+    <div class="page-card-header">📸 Gallery Photos <span class="badge">3 local images in gallery JS</span></div>
+    <div class="page-card-body">
+      <div class="step-note">These captions appear as overlays on the gallery and are also used as alt text for the images.</div>
+      <div class="field">
+        <label>cake.jpg <span class="char-count" id="alt-cake-count"></span></label>
+        <input type="text" id="alt-cake" maxlength="200"
+          value="Group Celebration"
+          oninput="countAlt('alt-cake')" />
+      </div>
+      <div class="field">
+        <label>promentoryFire.jpg <span class="char-count" id="alt-fire-count"></span></label>
+        <input type="text" id="alt-fire" maxlength="200"
+          value="Promontory Point — Bonfire Night"
+          oninput="countAlt('alt-fire')" />
+      </div>
+      <div class="field">
+        <label>meetup.jpg <span class="char-count" id="alt-meetup-count"></span></label>
+        <input type="text" id="alt-meetup" maxlength="200"
+          value="Outdoorsy Chicago Meetup"
+          oninput="countAlt('alt-meetup')" />
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="section-heading">FAQ Schema (for Google &amp; AI Engines)</div>
+  <div class="page-card">
+    <div class="page-card-header">❓ FAQ Questions &amp; Answers <span class="badge">JSON-LD in index.html &lt;head&gt;</span></div>
+    <div class="page-card-body">
+      <div class="step-note">Well-written answers here can appear directly in Google search results and in ChatGPT / Perplexity / Gemini responses about Outdoorsy Chicago.</div>
+      <div id="faq-list"></div>
+      <button class="btn-add-faq" onclick="addFaq()">+ Add a question</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB: OUTDOZEN PAGE  (outdozen/index.html)
+══════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-outdozen">
+<div class="container">
+
+  <div class="info-bar">
+    Everything here controls what appears on <strong>outdoorsychicago.com/outdozen</strong> — the OutDozen challenge page.
+  </div>
+
+  <!-- Search appearance -->
+  <div class="section-heading">Search Appearance</div>
+  <div class="page-card">
+    <div class="page-card-header">📋 Title &amp; Meta Description <span class="badge">outdozen/index.html &lt;head&gt;</span></div>
+    <div class="page-card-body">
+      <div class="field">
+        <label>Page Title <span class="char-count" id="outdozen-title-count"></span></label>
+        <input type="text" id="outdozen-title" maxlength="120"
+          value="The OutDozen | Outdoorsy Chicago Annual Challenge"
+          oninput="countChars('outdozen-title',60); syncPreview('outdozen')" />
+        <div class="step-note">Keep under <strong>60 characters</strong>.</div>
+      </div>
+      <div class="field">
+        <label>Meta Description <span class="char-count" id="outdozen-desc-count"></span></label>
+        <textarea id="outdozen-desc" rows="3" maxlength="200"
+          oninput="countChars('outdozen-desc',160); syncPreview('outdozen')"
+          >Complete 12 epic outdoor challenges across Chicago and beyond. Hike, kayak, camp, and explore with Outdoorsy Chicago's OutDozen bucket list.</textarea>
+      </div>
+      <hr class="divider" />
+      <div class="preview-box">
+        <div class="preview-label">Google search result preview</div>
+        <div class="preview-title" id="outdozen-preview-title"></div>
+        <div class="preview-url">outdoorsychicago.com/outdozen</div>
+        <div class="preview-desc"  id="outdozen-preview-desc"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share image -->
+  <div class="section-heading">Link Share Preview (OG Image)</div>
+  <div class="page-card">
+    <div class="page-card-header">🖼 Share Image <span class="badge">og:image meta tag</span></div>
+    <div class="page-card-body">
+      <div class="two-col">
+        <div class="field">
+          <label>Image URL</label>
+          <input type="url" id="outdozen-og-image"
+            value="https://www.outdoorsychicago.com/images/og-outdoorsy-chicago.jpg"
+            oninput="syncOgPreview('outdozen')"
+            placeholder="https://www.outdoorsychicago.com/images/og-outdoorsy-chicago.jpg" />
+          <div class="step-note" style="margin-top:0.4rem;">Can be the same as the home page or a unique image for the OutDozen. Best size: <strong>1200 × 630 px</strong>.</div>
+        </div>
+        <div class="og-preview">
+          <div class="og-preview-img" id="outdozen-og-wrap">
+            <span id="outdozen-og-placeholder">No image</span>
+            <img id="outdozen-og-img" src="" alt=""
+              onload="this.style.display='block'; document.getElementById('outdozen-og-placeholder').style.display='none';"
+              onerror="this.style.display='none'; document.getElementById('outdozen-og-placeholder').style.display='block';" />
+          </div>
+          <div class="og-preview-body">
+            <div class="og-preview-site">outdoorsychicago.com/outdozen</div>
+            <div class="og-preview-title" id="outdozen-og-title">The OutDozen</div>
+            <div class="og-preview-desc"  id="outdozen-og-desc">Complete 12 challenges.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Challenge pin images -->
+  <div class="section-heading">Challenge Pin Images — Alt Text</div>
+  <div class="page-card">
+    <div class="page-card-header">📍 Map Pin Images <span class="badge">outdozen/index.html img tags</span></div>
+    <div class="page-card-body">
+      <div class="step-note">These are the 5 challenge location images on the OutDozen map. Edit their alt text here — exported to <code>seo-config.js</code>.</div>
+      <div class="field">
+        <label>skating.png <span class="char-count" id="alt-skating-count"></span></label>
+        <input type="text" id="alt-skating" maxlength="200"
+          value="Maggie Daley Ice Skating — Chicago winter outdoor activity"
+          oninput="countAlt('alt-skating')" />
+      </div>
+      <div class="field">
+        <label>starved_rock.png <span class="char-count" id="alt-starved-count"></span></label>
+        <input type="text" id="alt-starved" maxlength="200"
+          value="Starved Rock State Park Camping — Illinois outdoor adventure"
+          oninput="countAlt('alt-starved')" />
+      </div>
+      <div class="field">
+        <label>bonfire.png <span class="char-count" id="alt-bonfire-count"></span></label>
+        <input type="text" id="alt-bonfire" maxlength="200"
+          value="Promontory Point Bonfire — Chicago lakefront gathering"
+          oninput="countAlt('alt-bonfire')" />
+      </div>
+      <div class="field">
+        <label>ski.png <span class="char-count" id="alt-ski-count"></span></label>
+        <input type="text" id="alt-ski" maxlength="200"
+          value="Boyne Highlands Ski Trip — Outdoorsy Chicago winter weekend"
+          oninput="countAlt('alt-ski')" />
+      </div>
+      <div class="field">
+        <label>cantigny.png <span class="char-count" id="alt-cantigny-count"></span></label>
+        <input type="text" id="alt-cantigny" maxlength="200"
+          value="Cantigny Park — DuPage County outdoor destination near Chicago"
+          oninput="countAlt('alt-cantigny')" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Sitemap date for this page -->
+  <div class="section-heading">Sitemap</div>
+  <div class="page-card">
+    <div class="page-card-header">🗺 OutDozen Page — Last Updated <span class="badge">sitemap.xml</span></div>
+    <div class="page-card-body">
+      <div class="field">
+        <label>Last Modified Date</label>
+        <input type="date" id="sitemap-outdozen-date" />
+        <div class="step-note">Update whenever you change the challenge list or page content. Tells Google to re-crawl this page.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB: SITE-WIDE
+══════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-sitewide">
+<div class="container">
+
+  <div class="info-bar">
+    These settings apply to <strong>all pages</strong> — social profiles used in schema markup, and sitemap dates for Google re-crawl signals.
+  </div>
+
+  <div class="section-heading">Social Profiles</div>
+  <div class="page-card">
+    <div class="page-card-header">🔗 Social Profile URLs <span class="badge">Organization schema sameAs</span></div>
+    <div class="page-card-body">
+      <div class="step-note">Used in schema markup so Google and AI engines link your social accounts to your site. Only update if handles change.</div>
+      <div class="field">
+        <label>Instagram URL</label>
+        <input type="url" id="social-instagram" value="https://www.instagram.com/outdoorsy_chicago" />
+      </div>
+      <div class="field">
+        <label>Meetup URL</label>
+        <input type="url" id="social-meetup" value="https://www.meetup.com/outdoorsy-chicago" />
+      </div>
+    </div>
+  </div>
+
+  <div class="section-heading">Sitemap — Home Page</div>
+  <div class="page-card">
+    <div class="page-card-header">🗺 Home Page — Last Updated <span class="badge">sitemap.xml</span></div>
+    <div class="page-card-body">
+      <div class="field">
+        <label>Last Modified Date</label>
+        <input type="date" id="sitemap-home-date" />
+        <div class="step-note">Update whenever you make significant changes to the home page content.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB: SAVE & EXPORT
+══════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-save">
+<div class="container">
+
+  <div class="info-bar">
+    Download both files, replace them in your repo folder, then push to GitHub. Changes go live automatically.
+  </div>
+
+  <div class="actions">
+    <h2>Export seo-config.js</h2>
+    <p class="step-note">Contains all titles, descriptions, alt text, OG images, social profiles, and FAQ schema. Replace <code>/seo-config.js</code> in your repo root.</p>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="downloadConfig()">⬇ Download seo-config.js</button>
+      <button class="btn-secondary" onclick="toggleCode('config')">{ } Preview code</button>
+      <button class="btn-accent" onclick="copyConfig()">Copy to clipboard</button>
+    </div>
+    <div class="toast" id="toast-config">Copied to clipboard!</div>
+    <div class="output-area" id="output-config">
+      <textarea id="output-config-code" readonly></textarea>
+    </div>
+  </div>
+
+  <div class="actions" style="margin-top:1.5rem;">
+    <h2>Export sitemap.xml</h2>
+    <p class="step-note">Contains updated <code>lastmod</code> dates from the Home and OutDozen page tabs. Replace <code>/sitemap.xml</code> in your repo root.</p>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="downloadSitemap()">⬇ Download sitemap.xml</button>
+      <button class="btn-secondary" onclick="toggleCode('sitemap')">{ } Preview code</button>
+    </div>
+    <div class="output-area" id="output-sitemap">
+      <textarea id="output-sitemap-code" readonly></textarea>
+    </div>
+  </div>
+
+  <div class="page-card" style="margin-top:1.5rem;">
+    <div class="page-card-header">📋 Deploy checklist</div>
+    <div class="page-card-body">
+      <ol style="padding-left:1.2rem; font-size:0.85rem; line-height:2.2; color:#3a3a3a;">
+        <li>Download <code>seo-config.js</code> and <code>sitemap.xml</code> above</li>
+        <li>Open your repo folder and replace both files</li>
+        <li>Open GitHub Desktop → commit with a message like <em>"update SEO"</em></li>
+        <li>Push to GitHub — the live site updates within ~30 seconds</li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<script>
+  // ── Tab switching ─────────────────────────────────────────
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── Helpers ───────────────────────────────────────────────
+  function decode(str) {
+    const t = document.createElement('textarea');
+    t.innerHTML = str; return t.value;
+  }
+  function val(id) { return decode(document.getElementById(id).value).trim(); }
+
+  // ── Char counters ─────────────────────────────────────────
+  function countChars(id, limit) {
+    const len = decode(document.getElementById(id).value).length;
+    const el = document.getElementById(id + '-count');
+    el.textContent = len + ' / ' + limit;
+    el.className = 'char-count ' + (len <= limit ? 'ok' : len <= limit + 10 ? 'warn' : 'over');
+  }
+  function countAlt(id) {
+    const len = document.getElementById(id).value.length;
+    const el = document.getElementById(id + '-count');
+    if (!el) return;
+    el.textContent = len + ' chars';
+    el.className = 'char-count ' + (len === 0 ? 'over' : len < 20 ? 'warn' : len <= 150 ? 'ok' : 'warn');
+  }
+
+  // ── Google search preview ─────────────────────────────────
+  function syncPreview(page) {
+    const title = val(page + '-title') || '(no title)';
+    const desc  = val(page + '-desc')  || '(no description)';
+    document.getElementById(page + '-preview-title').textContent = title.slice(0, 70);
+    document.getElementById(page + '-preview-desc').textContent  = desc.slice(0, 160);
+    // keep OG card in sync
+    document.getElementById(page + '-og-title').textContent = title.slice(0, 55);
+    document.getElementById(page + '-og-desc').textContent  = desc.slice(0, 90);
+  }
+
+  // ── OG image preview ─────────────────────────────────────
+  function syncOgPreview(page) {
+    const url = document.getElementById(page + '-og-image').value.trim();
+    const img = document.getElementById(page + '-og-img');
+    if (url) img.src = url;
+  }
+
+  // ── FAQ management ────────────────────────────────────────
+  const FAQS = [
+    { q: "What is Outdoorsy Chicago?",
+      a: "Outdoorsy Chicago is a community of 300+ Chicagoans in their 20s and 30s who organize outdoor adventures together — including hiking, kayaking, camping, cycling, and day trips to places like Indiana Dunes and Starved Rock State Park." },
+    { q: "How do I join Outdoorsy Chicago?",
+      a: "You can join by filling out the form at outdoorsychicago.com. Events are also posted on the group's Meetup.com page and Google Calendar." },
+    { q: "What outdoor activities does Outdoorsy Chicago do?",
+      a: "The group organizes hiking and trail walks, kayaking on the Chicago River and Lake Michigan, camping weekends, cycling trips, lakefront bonfires, Indiana Dunes day trips, and stargazing getaways." },
+    { q: "Is Outdoorsy Chicago free to join?",
+      a: "Yes, joining the Outdoorsy Chicago community is free. Individual events may have their own costs depending on the activity." },
+    { q: "What is the OutDozen challenge?",
+      a: "The OutDozen is Outdoorsy Chicago's bucket list challenge — 12 outdoor experiences to complete across Chicago and the surrounding region, including camping, kayaking, and hiking iconic local spots." }
+  ];
+
+  function ea(s) { return s.replace(/"/g,'&quot;'); }
+  function eh(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function renderFaqs() {
+    document.getElementById('faq-list').innerHTML = FAQS.map((f,i) => `
+      <div class="faq-item">
+        <div class="faq-item-header">
+          Question ${i+1}
+          <button class="faq-remove" onclick="removeFaq(${i})">Remove</button>
+        </div>
+        <div class="faq-item-body">
+          <div class="field">
+            <label>Question</label>
+            <input type="text" id="faq-q-${i}" value="${ea(f.q)}" maxlength="200"
+              oninput="FAQS[${i}].q=this.value" />
+          </div>
+          <div class="field">
+            <label>Answer</label>
+            <textarea id="faq-a-${i}" rows="2" maxlength="600"
+              oninput="FAQS[${i}].a=this.value">${eh(f.a)}</textarea>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function addFaq() {
+    FAQS.push({ q: '', a: '' });
+    renderFaqs();
+    document.getElementById('faq-q-' + (FAQS.length-1)).focus();
+  }
+  function removeFaq(i) { FAQS.splice(i,1); renderFaqs(); }
+
+  // ── Build seo-config.js ───────────────────────────────────
+  function buildConfig() {
+    return `/**
+ * ============================================================
+ *  OUTDOORSY CHICAGO — SEO CONFIGURATION
+ *  Edit in the SEO Editor (admin/seo-editor.html) or directly.
+ *  After saving, replace this file in the repo and push to GitHub.
+ * ============================================================
+ */
+const SEO = {
+
+  siteName: "Outdoorsy Chicago",
+  siteUrl:  "https://www.outdoorsychicago.com",
+
+  // ── Social profiles ─────────────────────────────────────
+  socialProfiles: [
+    "${val('social-instagram')}",
+    "${val('social-meetup')}"
+  ],
+
+  // ── Home page ────────────────────────────────────────────
+  home: {
+    title:        "${val('home-title')}",
+    description:  "${val('home-desc')}",
+    canonicalUrl: "https://www.outdoorsychicago.com/",
+    ogImage:      "${val('home-og-image')}"
+  },
+
+  // ── OutDozen page ────────────────────────────────────────
+  outdozen: {
+    title:        "${val('outdozen-title')}",
+    description:  "${val('outdozen-desc')}",
+    canonicalUrl: "https://www.outdoorsychicago.com/outdozen",
+    ogImage:      "${val('outdozen-og-image')}"
+  },
+
+  // ── Organization schema ──────────────────────────────────
+  organization: {
+    name:       "Outdoorsy Chicago",
+    email:      "outdoorsychicago@gmail.com",
+    city:       "Chicago",
+    region:     "IL",
+    country:    "US",
+    latitude:   41.8781,
+    longitude: -87.6298,
+    areaServed: ["Chicago, Illinois", "Chicagoland", "Northern Illinois", "Indiana Dunes", "Starved Rock"]
+  },
+
+  // ── Image alt text ───────────────────────────────────────
+  imageAlt: {
+    // Home — Who We Are
+    intoTheWoods: "${val('alt-woods')}",
+    onTheWater:   "${val('alt-water')}",
+    cityTrails:   "${val('alt-city')}",
+    // Home — Gallery
+    cake:         "${val('alt-cake')}",
+    bonfire:      "${val('alt-fire')}",
+    meetup:       "${val('alt-meetup')}",
+    // OutDozen — map pins
+    skating:      "${val('alt-skating')}",
+    starvedRock:  "${val('alt-starved')}",
+    bonfire2:     "${val('alt-bonfire')}",
+    ski:          "${val('alt-ski')}",
+    cantigny:     "${val('alt-cantigny')}"
+  },
+
+  // ── FAQ schema (home page) ───────────────────────────────
+  faqs: [
+${FAQS.map(f=>`    { q: ${JSON.stringify(f.q)}, a: ${JSON.stringify(f.a)} }`).join(',\n')}
+  ]
+};
+
+if (typeof window !== "undefined") window.SEO = SEO;
+if (typeof module !== "undefined") module.exports = SEO;
+`;
+  }
+
+  // ── Build sitemap.xml ─────────────────────────────────────
+  function buildSitemap() {
+    const hd = document.getElementById('sitemap-home-date').value;
+    const od = document.getElementById('sitemap-outdozen-date').value;
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://www.outdoorsychicago.com/</loc>
+    <lastmod>${hd}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.outdoorsychicago.com/outdozen</loc>
+    <lastmod>${od}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>
+`;
+  }
+
+  // ── Download / copy ───────────────────────────────────────
+  function dl(content, name, type) {
+    const a = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(new Blob([content],{type})),
+      download: name
+    });
+    a.click(); URL.revokeObjectURL(a.href);
+  }
+  function downloadConfig()  { dl(buildConfig(),  'seo-config.js', 'text/javascript'); }
+  function downloadSitemap() { dl(buildSitemap(), 'sitemap.xml',   'application/xml'); }
+
+  function copyConfig() {
+    const c = buildConfig();
+    navigator.clipboard.writeText(c).then(() => {
+      const t = document.getElementById('toast-config');
+      t.classList.add('visible'); setTimeout(()=>t.classList.remove('visible'), 2500);
+    });
+    document.getElementById('output-config-code').value = c;
+    document.getElementById('output-config').classList.add('visible');
+  }
+
+  function toggleCode(which) {
+    const area = document.getElementById('output-' + which);
+    const code = document.getElementById('output-' + which + '-code');
+    if (area.classList.contains('visible')) { area.classList.remove('visible'); return; }
+    code.value = which === 'config' ? buildConfig() : buildSitemap();
+    area.classList.add('visible');
+  }
+
+  // ── Init ──────────────────────────────────────────────────
+  window.addEventListener('load', () => {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Char counts
+    countChars('home-title', 60);     countChars('home-desc', 160);
+    countChars('outdozen-title', 60); countChars('outdozen-desc', 160);
+
+    // Previews
+    syncPreview('home'); syncPreview('outdozen');
+    syncOgPreview('home'); syncOgPreview('outdozen');
+
+    // Alt counts
+    ['alt-woods','alt-water','alt-city','alt-cake','alt-fire','alt-meetup',
+     'alt-skating','alt-starved','alt-bonfire','alt-ski','alt-cantigny']
+      .forEach(id => countAlt(id));
+
+    // FAQ
+    renderFaqs();
+
+    // Sitemap dates
+    document.getElementById('sitemap-home-date').value    = today;
+    document.getElementById('sitemap-outdozen-date').value = today;
+  });
+</script>
+</body>
+</html>
