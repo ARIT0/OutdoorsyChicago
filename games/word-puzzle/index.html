@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chi-Words &mdash; Outdoorsy Chicago</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Fredoka+One&family=DM+Sans:wght@300;400;500&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #2d4a3e;
+    --sage: #7a9e8e;
+    --sand: #e8dcc8;
+    --cream: #f5f0e8;
+    --bark: #5c4a32;
+    --sky: #a8c4b8;
+    --accent: #c4793a;
+    --dark: #1a2e26;
+
+    /* game palette */
+    --g-bg: #f5f0e8;
+    --g-card: #ffffff;
+    --g-correct: #4a7c5e;
+    --g-hint: #c4793a;
+    --g-wrong: #9b3a2a;
+    --g-shadow: 0 8px 32px rgba(26,46,38,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  .site-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 3rem;
+    background: rgba(245, 240, 232, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(122,158,142,0.2);
+  }
+  .site-nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--forest);
+    font-style: italic;
+    text-decoration: none;
+  }
+  .site-nav-links { display: flex; gap: 2rem; list-style: none; }
+  .site-nav-links a {
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bark);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .site-nav-links a:hover, .site-nav-links a.active { color: var(--accent); }
+  .site-nav-hamburger {
+    display: none; flex-direction: column; justify-content: center;
+    gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; z-index: 101;
+  }
+  .site-nav-hamburger span {
+    display: block; width: 24px; height: 2px;
+    background: var(--forest);
+    transition: transform 0.3s, opacity 0.3s;
+  }
+  .site-nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .site-nav-hamburger.open span:nth-child(2) { opacity: 0; }
+  .site-nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .site-mobile-menu {
+    display: none; position: fixed; top: 0; left: 0; right: 0;
+    background: rgba(245, 240, 232, 0.97); backdrop-filter: blur(12px);
+    padding: 5rem 2rem 2rem; z-index: 99;
+    flex-direction: column; gap: 0;
+    border-bottom: 1px solid rgba(122,158,142,0.2);
+  }
+  .site-mobile-menu.open { display: flex; }
+  .site-mobile-menu a {
+    font-size: 1rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--bark);
+    text-decoration: none; padding: 1rem 0;
+    border-bottom: 1px solid rgba(122,158,142,0.15); transition: color 0.2s;
+  }
+  .site-mobile-menu a:last-child { border-bottom: none; }
+  .site-mobile-menu a:hover { color: var(--accent); }
+
+  /* GAME SHELL */
+  .game-shell {
+    min-height: 100vh;
+    padding-top: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 3rem;
+  }
+
+  /* Subtle background texture */
+  .game-shell::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 15% 20%, rgba(45,74,62,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 75%, rgba(196,121,58,0.06) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .game-wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 540px;
+    padding: 1.5rem 1rem;
+  }
+
+  /* Header */
+  .game-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .game-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    color: var(--forest);
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .game-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .game-subtitle {
+    font-size: 0.85rem;
+    color: var(--bark);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    opacity: 0.75;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 1.2rem;
+  }
+  .stat-pill {
+    flex: 1;
+    background: var(--g-card);
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(26,46,38,0.08);
+    border: 1.5px solid rgba(122,158,142,0.2);
+  }
+  .stat-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--sage);
+  }
+  .stat-value {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    line-height: 1.1;
+    color: var(--dark);
+  }
+  .stat-pill.score-pill .stat-value { color: var(--forest); }
+  .stat-pill.streak-pill .stat-value { color: var(--accent); }
+  .stat-pill.time-pill .stat-value { color: var(--bark); }
+
+  /* Game Card */
+  .game-card {
+    background: var(--g-card);
+    border-radius: 16px;
+    padding: 28px 24px;
+    box-shadow: var(--g-shadow);
+    border: 1.5px solid rgba(122,158,142,0.15);
+  }
+
+  /* Category badge */
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--forest);
+    color: var(--cream);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Clue */
+  .clue-text {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--dark);
+    margin-bottom: 18px;
+    line-height: 1.55;
+    min-height: 54px;
+  }
+  .clue-emoji {
+    display: block;
+    font-size: 2rem;
+    margin-bottom: 6px;
+  }
+
+  /* Letter tiles */
+  .word-display {
+    display: flex;
+    gap: 7px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .letter-tile {
+    width: 42px;
+    height: 50px;
+    background: var(--cream);
+    border: 2px solid rgba(122,158,142,0.3);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    color: var(--dark);
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .letter-tile.revealed {
+    background: var(--g-correct);
+    border-color: var(--g-correct);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(74,124,94,0.3);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .letter-tile.hint-tile {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(196,121,58,0.3);
+  }
+  .letter-tile.wrong-shake {
+    animation: shake 0.4s ease;
+    background: #f5e6e3;
+    border-color: var(--g-wrong);
+  }
+  .letter-tile.space-tile {
+    background: transparent;
+    border: none;
+    width: 14px;
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+    100% { transform: scale(1.05) rotate(0deg); opacity: 1; }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  /* Attempts */
+  .attempts-display {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .attempt-heart { font-size: 1.1rem; transition: all 0.3s; }
+  .attempt-heart.lost { filter: grayscale(1); opacity: 0.3; transform: scale(0.8); }
+
+  /* Input area */
+  .input-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .letter-input {
+    flex: 1;
+    padding: 13px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 2px solid rgba(122,158,142,0.3);
+    border-radius: 10px;
+    outline: none;
+    background: var(--cream);
+    color: var(--dark);
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .letter-input:focus {
+    border-color: var(--forest);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(45,74,62,0.1);
+  }
+  .letter-input::placeholder {
+    text-transform: none;
+    letter-spacing: 0;
+    color: rgba(92,74,50,0.4);
+    font-weight: 400;
+    font-size: 0.9rem;
+  }
+  .btn-guess {
+    padding: 13px 20px;
+    background: var(--forest);
+    color: var(--cream);
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-guess:hover { background: #3a5e50; transform: translateY(-1px); }
+  .btn-guess:active { transform: translateY(0); }
+
+  /* Action buttons */
+  .action-btns { display: flex; gap: 8px; }
+  .btn-hint {
+    flex: 1;
+    padding: 10px;
+    background: white;
+    border: 2px solid rgba(196,121,58,0.4);
+    color: var(--accent);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+  .btn-hint:hover { background: #fdf5ee; transform: translateY(-1px); }
+  .btn-hint:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .btn-skip {
+    flex: 1;
+    padding: 10px;
+    background: white;
+    border: 2px solid rgba(122,158,142,0.25);
+    color: var(--sage);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+  .btn-skip:hover { background: #f2f6f4; transform: translateY(-1px); }
+
+  /* Progress dots */
+  .progress-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 18px;
+  }
+  .prog-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rgba(122,158,142,0.25);
+    transition: all 0.3s;
+  }
+  .prog-dot.done { background: var(--g-correct); transform: scale(1.15); }
+  .prog-dot.active { background: var(--forest); transform: scale(1.3); box-shadow: 0 0 0 3px rgba(45,74,62,0.15); }
+
+  /* Feedback toast */
+  .feedback-toast {
+    position: fixed;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: var(--dark);
+    color: white;
+    padding: 11px 22px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    z-index: 200;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  }
+  .feedback-toast.show { transform: translateX(-50%) translateY(0); }
+  .feedback-toast.correct { background: var(--g-correct); }
+  .feedback-toast.wrong { background: var(--g-wrong); }
+  .feedback-toast.hint { background: var(--accent); color: white; }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 300;
+    animation: confettiFall 1.2s ease-in forwards;
+  }
+  @keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(280px) rotate(720deg); }
+  }
+
+  /* Win screen */
+  .win-screen {
+    display: none;
+    text-align: center;
+    padding: 10px 0;
+  }
+  .win-screen.show { display: block; animation: fadeInUp 0.5s ease; }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .win-emoji { font-size: 3.5rem; margin-bottom: 10px; display: block; animation: bounce 0.6s ease infinite alternate; }
+  @keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-10px); }
+  }
+  .win-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--forest);
+    margin-bottom: 6px;
+  }
+  .win-title em { font-style: italic; color: var(--accent); }
+  .win-score {
+    font-size: 1rem;
+    color: var(--bark);
+    font-weight: 500;
+    margin-bottom: 24px;
+    opacity: 0.8;
+  }
+  .win-score strong {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    color: var(--forest);
+  }
+  .btn-play-again {
+    padding: 14px 36px;
+    background: var(--forest);
+    color: var(--cream);
+    border: none;
+    border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 6px 20px rgba(45,74,62,0.25);
+    margin-bottom: 12px;
+    display: block;
+    width: 100%;
+  }
+  .btn-play-again:hover { background: #3a5e50; transform: translateY(-2px); }
+  .btn-back {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 0.8rem;
+    color: var(--sage);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  .btn-back:hover { color: var(--forest); }
+
+  @media (max-width: 768px) {
+    .site-nav { padding: 1rem 1.5rem; }
+    .site-nav-links { display: none; }
+    .site-nav-hamburger { display: flex; }
+    .game-wrapper { padding: 1rem 0.75rem; }
+  }
+  @media (max-width: 480px) {
+    .letter-tile { width: 36px; height: 44px; font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="site-nav">
+  <a href="/" class="site-nav-logo">Outdoorsy Chicago</a>
+  <ul class="site-nav-links">
+    <li><a href="/#about">Who We Are</a></li>
+    <li><a href="/#gallery">Gallery</a></li>
+    <li><a href="/#events">Events</a></li>
+    <li><a href="/outdozen">The OutDozen</a></li>
+    <li><a href="/games" class="active">Games</a></li>
+    <li><a href="/#survey">Join Us</a></li>
+  </ul>
+  <button class="site-nav-hamburger" id="hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="site-mobile-menu" id="mobile-menu">
+  <a href="/#about" class="mobile-link">Who We Are</a>
+  <a href="/#gallery" class="mobile-link">Gallery</a>
+  <a href="/#events" class="mobile-link">Events</a>
+  <a href="/outdozen" class="mobile-link">The OutDozen</a>
+  <a href="/games" class="mobile-link">Games</a>
+  <a href="/#survey" class="mobile-link">Join Us</a>
+</div>
+
+<div class="feedback-toast" id="toast"></div>
+
+<div class="game-shell">
+  <div class="game-wrapper">
+
+    <div class="game-header">
+      <div class="game-title"><em>Chi</em>-Words</div>
+      <div class="game-subtitle">Guess the Chicago outdoor term</div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-pill score-pill">
+        <div class="stat-label">Score</div>
+        <div class="stat-value" id="score">0</div>
+      </div>
+      <div class="stat-pill streak-pill">
+        <div class="stat-label">Streak</div>
+        <div class="stat-value" id="streak">0</div>
+      </div>
+      <div class="stat-pill time-pill">
+        <div class="stat-label">Time</div>
+        <div class="stat-value" id="timer">60</div>
+      </div>
+    </div>
+
+    <div class="game-card">
+      <!-- Main game -->
+      <div id="mainGame">
+        <div class="category-badge" id="categoryBadge">Category</div>
+
+        <div class="puzzle-area">
+          <div class="clue-text" id="clueText"></div>
+          <div class="attempts-display" id="attemptsDisplay"></div>
+          <div class="word-display" id="wordDisplay"></div>
+        </div>
+
+        <div class="input-area">
+          <input type="text" class="letter-input" id="guessInput" placeholder="Type your answer..." maxlength="30" autocomplete="off" autocorrect="off" spellcheck="false">
+          <button class="btn-guess" onclick="submitGuess()">GO</button>
+        </div>
+
+        <div class="action-btns">
+          <button class="btn-hint" id="hintBtn" onclick="useHint()">&#128161; Hint <span id="hintCount">(2)</span></button>
+          <button class="btn-skip" onclick="skipWord()">&#9197; Skip</button>
+        </div>
+
+        <div class="progress-dots" id="progressDots"></div>
+      </div>
+
+      <!-- Win screen -->
+      <div class="win-screen" id="winScreen">
+        <span class="win-emoji">&#127881;</span>
+        <div class="win-title">Chi-town <em>knows.</em></div>
+        <div class="win-score">Final Score: <strong id="finalScore">0</strong></div>
+        <button class="btn-play-again" onclick="restartGame()">Play Again</button>
+        <a href="/games" class="btn-back">&larr; Back to Games</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const puzzles = [
+  // Landmarks & Places
+  { word: "LAKEFRONT", emoji: "🌊", category: "Chicago Places", clue: "The iconic shoreline path stretching along Lake Michigan through the city" },
+  { word: "RIVERWALK", emoji: "🚶", category: "Chicago Places", clue: "Downtown pedestrian path running along the Chicago River's edge" },
+  { word: "MILLENNIUM", emoji: "🫛", category: "Chicago Places", clue: "Loop park home to the Bean and Crown Fountain — a favorite meetup spot" },
+  { word: "PROMONTORY", emoji: "🔥", category: "Chicago Places", clue: "Hyde Park limestone point on the lake — famous for bonfires and sunsets" },
+  { word: "MAGGIE DALEY", emoji: "⛸️", category: "Chicago Places", clue: "East Loop park with an iconic ice skating ribbon in winter" },
+  { word: "NAVY PIER", emoji: "🎡", category: "Chicago Places", clue: "Lakefront landmark with a Ferris wheel and summer fireworks" },
+  { word: "MONTROSE", emoji: "🐦", category: "Chicago Places", clue: "Northside beach and bird sanctuary beloved by migrating birds and birders" },
+  // Outdoor activities
+  { word: "KAYAKING", emoji: "🛶", category: "Outdoor Activity", clue: "Paddling the Chicago River in a small narrow boat — one of our favorite OutDozen activities" },
+  { word: "STARGAZING", emoji: "✨", category: "Outdoor Activity", clue: "Heading outside the city lights to watch the night sky — an OutDozen challenge" },
+  { word: "CAMPING", emoji: "⛺", category: "Outdoor Activity", clue: "Sleeping under the stars with a tent and sleeping bag" },
+  { word: "CYCLING", emoji: "🚴", category: "Outdoor Activity", clue: "Riding the 18-mile Lakefront Trail on two wheels" },
+  { word: "BIRDWATCH", emoji: "🦅", category: "Outdoor Activity", clue: "Spotting and identifying wild birds in parks and nature areas" },
+  // Nature & Geography
+  { word: "INDIANA DUNES", emoji: "🏖️", category: "Nature", clue: "National park one hour from Chicago with towering sand dunes and Lake Michigan shoreline" },
+  { word: "STARVED ROCK", emoji: "🪨", category: "Nature", clue: "Illinois state park famous for its canyons and waterfalls, an OutDozen camping destination" },
+  { word: "CANTIGNY", emoji: "🌸", category: "Nature", clue: "Wheaton estate with manicured gardens and open grounds — another OutDozen stop" },
+  { word: "BOYNE", emoji: "⛷️", category: "Nature", clue: "Michigan ski resort the crew hit for the OutDozen winter challenge" },
+  // Gear & Terms
+  { word: "TRAILHEAD", emoji: "🥾", category: "Trail Life", clue: "The starting point of a hiking path, where you park and lace up" },
+  { word: "CAMPFIRE", emoji: "🔥", category: "Trail Life", clue: "Open outdoor flame for warmth and s'mores — the heart of any camping trip" },
+  { word: "SUNRISE", emoji: "🌅", category: "Trail Life", clue: "The early morning reward for hiking Indiana Dunes before the crowds arrive" },
+  { word: "CARABINER", emoji: "🧗", category: "Gear", clue: "Metal loop with a spring gate used in climbing and attaching gear" },
+];
+
+let state = {
+  score: 0,
+  streak: 0,
+  hints: 2,
+  currentIndex: 0,
+  attempts: 3,
+  revealed: [],
+  order: [],
+  timeLeft: 60,
+  timer: null,
+  done: false,
+};
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function initGame() {
+  state.score = 0;
+  state.streak = 0;
+  state.hints = 2;
+  state.currentIndex = 0;
+  state.timeLeft = 60;
+  state.done = false;
+  state.order = shuffle(puzzles).slice(0, 8);
+  clearInterval(state.timer);
+  document.getElementById('winScreen').classList.remove('show');
+  document.getElementById('mainGame').style.display = 'block';
+  updateStats();
+  loadPuzzle();
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(state.timer);
+  state.timer = setInterval(() => {
+    state.timeLeft--;
+    document.getElementById('timer').textContent = state.timeLeft;
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timer);
+      endGame();
+    }
+  }, 1000);
+}
+
+function loadPuzzle() {
+  if (state.currentIndex >= state.order.length) { endGame(); return; }
+  const puzzle = state.order[state.currentIndex];
+  state.attempts = 3;
+  state.revealed = puzzle.word.split('').map(c => c === ' ' ? ' ' : null);
+
+  document.getElementById('categoryBadge').textContent = puzzle.emoji + ' ' + puzzle.category;
+  document.getElementById('clueText').innerHTML = '<span class="clue-emoji">' + puzzle.emoji + '</span>' + puzzle.clue;
+  document.getElementById('hintBtn').disabled = false;
+  document.getElementById('hintCount').textContent = '(' + state.hints + ')';
+  document.getElementById('guessInput').value = '';
+  document.getElementById('guessInput').focus();
+
+  renderWordDisplay();
+  renderAttempts();
+  renderProgress();
+}
+
+function renderWordDisplay() {
+  const puzzle = state.order[state.currentIndex];
+  const letters = puzzle.word.split('');
+  const container = document.getElementById('wordDisplay');
+  container.innerHTML = '';
+  letters.forEach((letter, i) => {
+    const tile = document.createElement('div');
+    if (letter === ' ') {
+      tile.className = 'letter-tile space-tile';
+    } else {
+      tile.className = 'letter-tile';
+      if (state.revealed[i] !== null) {
+        tile.textContent = letter;
+        tile.classList.add(state.revealed[i] === 'hint' ? 'hint-tile' : 'revealed');
+      }
+    }
+    container.appendChild(tile);
+  });
+}
+
+function renderAttempts() {
+  const el = document.getElementById('attemptsDisplay');
+  el.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const h = document.createElement('span');
+    h.className = 'attempt-heart' + (i >= state.attempts ? ' lost' : '');
+    h.textContent = '❤️';
+    el.appendChild(h);
+  }
+}
+
+function renderProgress() {
+  const el = document.getElementById('progressDots');
+  el.innerHTML = '';
+  state.order.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'prog-dot' + (i < state.currentIndex ? ' done' : i === state.currentIndex ? ' active' : '');
+    el.appendChild(dot);
+  });
+}
+
+function updateStats() {
+  document.getElementById('score').textContent = state.score;
+  document.getElementById('streak').textContent = state.streak;
+}
+
+function submitGuess() {
+  const input = document.getElementById('guessInput');
+  const guess = input.value.trim().toUpperCase();
+  if (!guess) return;
+  const puzzle = state.order[state.currentIndex];
+
+  if (guess === puzzle.word) {
+    state.revealed = puzzle.word.split('').map(() => 'correct');
+    renderWordDisplay();
+    const pts = 100 + (state.streak * 10) + (state.attempts * 15);
+    state.score += pts;
+    state.streak++;
+    state.timeLeft = Math.min(state.timeLeft + 5, 60);
+    document.getElementById('timer').textContent = state.timeLeft;
+    updateStats();
+    showToast('+' + pts + ' points!', 'correct');
+    launchConfetti();
+    input.value = '';
+    setTimeout(() => { state.currentIndex++; loadPuzzle(); }, 1200);
+  } else {
+    state.attempts--;
+    state.streak = 0;
+    updateStats();
+    renderAttempts();
+    shakeTiles();
+    showToast('Not quite — try again!', 'wrong');
+    input.value = '';
+    if (state.attempts <= 0) {
+      state.revealed = puzzle.word.split('').map(() => 'correct');
+      renderWordDisplay();
+      showToast('It was: ' + puzzle.word, 'wrong');
+      setTimeout(() => { state.currentIndex++; loadPuzzle(); }, 1800);
+    }
+  }
+}
+
+function useHint() {
+  if (state.hints <= 0) { showToast('No hints left!', 'wrong'); return; }
+  const puzzle = state.order[state.currentIndex];
+  const hidden = puzzle.word.split('').reduce((acc, c, i) => {
+    if (c !== ' ' && state.revealed[i] === null) acc.push(i);
+    return acc;
+  }, []);
+  if (hidden.length === 0) return;
+  const pick = hidden[Math.floor(Math.random() * hidden.length)];
+  state.revealed[pick] = 'hint';
+  state.hints--;
+  document.getElementById('hintCount').textContent = '(' + state.hints + ')';
+  if (state.hints <= 0) document.getElementById('hintBtn').disabled = true;
+  renderWordDisplay();
+  showToast('Hint revealed!', 'hint');
+}
+
+function skipWord() {
+  state.streak = 0;
+  updateStats();
+  const puzzle = state.order[state.currentIndex];
+  showToast('It was: ' + puzzle.word, 'wrong');
+  setTimeout(() => { state.currentIndex++; loadPuzzle(); }, 1200);
+}
+
+function shakeTiles() {
+  document.querySelectorAll('.letter-tile:not(.space-tile)').forEach(t => {
+    t.classList.add('wrong-shake');
+    t.addEventListener('animationend', () => t.classList.remove('wrong-shake'), { once: true });
+  });
+}
+
+function showToast(msg, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'feedback-toast ' + type + ' show';
+  setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
+function launchConfetti() {
+  const colors = ['#2d4a3e','#c4793a','#7a9e8e','#a8c4b8','#5c4a32','#e8dcc8'];
+  for (let i = 0; i < 24; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.cssText =
+      'left:' + (20 + Math.random() * 60) + 'vw;' +
+      'top:' + (10 + Math.random() * 30) + 'vh;' +
+      'background:' + colors[Math.floor(Math.random() * colors.length)] + ';' +
+      'width:' + (6 + Math.random() * 7) + 'px;' +
+      'height:' + (6 + Math.random() * 7) + 'px;' +
+      'border-radius:' + (Math.random() > 0.5 ? '50%' : '2px') + ';' +
+      'animation-delay:' + (Math.random() * 0.4) + 's;' +
+      'animation-duration:' + (0.8 + Math.random() * 0.8) + 's;';
+    document.body.appendChild(c);
+    c.addEventListener('animationend', () => c.remove());
+  }
+}
+
+function endGame() {
+  clearInterval(state.timer);
+  state.done = true;
+  document.getElementById('mainGame').style.display = 'none';
+  document.getElementById('finalScore').textContent = state.score;
+  document.getElementById('winScreen').classList.add('show');
+  if (state.score > 0) launchConfetti();
+}
+
+function restartGame() { initGame(); }
+
+document.getElementById('guessInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitGuess();
+});
+
+initGame();
+</script>
+
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+  });
+  document.querySelectorAll('.mobile-link').forEach(link => {
+    link.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    });
+  });
+</script>
+</body>
+</html>

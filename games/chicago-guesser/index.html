@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chi-Guesser &mdash; Where in Chicago? &mdash; Outdoorsy Chicago</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* site palette */
+    --forest: #2d4a3e;
+    --sage: #7a9e8e;
+    --sand: #e8dcc8;
+    --cream: #f5f0e8;
+    --bark: #5c4a32;
+    --sky: #a8c4b8;
+    --accent: #c4793a;
+
+    /* game palette */
+    --chi-blue: #0a1628;
+    --chi-red: #e63946;
+    --chi-gold: #f4a529;
+    --chi-cream: #f5f0e8;
+    --chi-teal: #2a9d8f;
+    --chi-mid: #1e3a5f;
+    --text-main: #f5f0e8;
+    --text-dim: #8a9bb5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--chi-blue);
+    color: var(--text-main);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  /* ── SITE NAV ── */
+  .site-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 3rem;
+    background: rgba(10, 22, 40, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(244,165,41,0.15);
+  }
+  .site-nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--chi-gold);
+    font-style: italic;
+    text-decoration: none;
+  }
+  .site-nav-links { display: flex; gap: 2rem; list-style: none; }
+  .site-nav-links a {
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .site-nav-links a:hover, .site-nav-links a.active { color: var(--chi-gold); }
+  .site-nav-hamburger {
+    display: none; flex-direction: column; justify-content: center;
+    gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; z-index: 201;
+  }
+  .site-nav-hamburger span {
+    display: block; width: 24px; height: 2px;
+    background: var(--chi-gold);
+    transition: transform 0.3s, opacity 0.3s;
+  }
+  .site-nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .site-nav-hamburger.open span:nth-child(2) { opacity: 0; }
+  .site-nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .site-mobile-menu {
+    display: none; position: fixed; top: 0; left: 0; right: 0;
+    background: rgba(10, 22, 40, 0.97); backdrop-filter: blur(12px);
+    padding: 5rem 2rem 2rem; z-index: 199;
+    flex-direction: column; gap: 0;
+    border-bottom: 1px solid rgba(244,165,41,0.15);
+  }
+  .site-mobile-menu.open { display: flex; }
+  .site-mobile-menu a {
+    font-size: 1rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-dim);
+    text-decoration: none; padding: 1rem 0;
+    border-bottom: 1px solid rgba(244,165,41,0.1); transition: color 0.2s;
+  }
+  .site-mobile-menu a:last-child { border-bottom: none; }
+  .site-mobile-menu a:hover { color: var(--chi-gold); }
+
+  /* ── GAME HEADER STRIP ── */
+  .game-header-strip {
+    position: fixed;
+    top: 58px; /* below site nav */
+    left: 0; right: 0;
+    z-index: 100;
+    padding: 10px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(244,165,41,0.2);
+    background: rgba(10,22,40,0.92);
+    backdrop-filter: blur(12px);
+  }
+
+  .logo { display: flex; align-items: baseline; gap: 10px; }
+  .logo-main { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; letter-spacing: 0.05em; color: var(--chi-gold); line-height: 1; }
+  .logo-sub { font-family: 'DM Mono', monospace; font-size: 0.55rem; color: var(--text-dim); letter-spacing: 0.15em; text-transform: uppercase; }
+
+  .score-bar { display: flex; gap: 20px; align-items: center; }
+  .score-item { text-align: center; }
+  .score-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--chi-gold); line-height: 1; }
+  .score-label { font-family: 'DM Mono', monospace; font-size: 0.45rem; color: var(--text-dim); letter-spacing: 0.12em; text-transform: uppercase; }
+
+  .round-dots { display: flex; gap: 8px; align-items: center; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; background: rgba(255,255,255,0.12); transition: all 0.3s ease; }
+  .dot.done { background: var(--chi-teal); }
+  .dot.active { background: var(--chi-gold); transform: scale(1.4); box-shadow: 0 0 8px rgba(244,165,41,0.5); }
+
+  /* ── GAME LAYOUT ── */
+  .game-container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    /* account for site nav (58px) + game header strip (~50px) */
+    height: calc(100vh - 108px);
+    margin-top: 108px;
+  }
+
+  /* ── CLUE PANEL ── */
+  .clue-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    background: var(--chi-blue);
+  }
+
+  .clue-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 25% 15%, rgba(244,165,41,0.07) 0%, transparent 55%),
+                radial-gradient(ellipse at 75% 85%, rgba(42,157,143,0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .clue-top {
+    padding: 24px 40px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .category-badge {
+    display: inline-block;
+    background: var(--chi-red);
+    color: white;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    padding: 3px 11px 2px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+
+  .location-icon {
+    font-size: 3.5rem;
+    line-height: 1;
+    margin-bottom: 10px;
+    display: block;
+    filter: drop-shadow(0 4px 16px rgba(244,165,41,0.2));
+    animation: iconFloat 4s ease-in-out infinite;
+  }
+
+  @keyframes iconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .clue-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--chi-gold);
+    margin-bottom: 6px;
+  }
+
+  .clue-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 0.03em;
+    line-height: 1;
+    color: var(--chi-cream);
+  }
+
+  /* ── CLUES ── */
+  .clues-section {
+    flex: 1;
+    padding: 18px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+  }
+
+  .clues-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.56rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+  }
+
+  .clue-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-left: 3px solid var(--chi-gold);
+    border-radius: 8px;
+    padding: 13px 16px;
+    opacity: 0;
+    transform: translateX(-12px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .clue-card.visible { opacity: 1; transform: translateX(0); }
+  .clue-card.locked { border-left-color: rgba(255,255,255,0.1); }
+  .clue-card.locked .clue-text { filter: blur(5px); user-select: none; color: var(--text-dim); }
+  .clue-card.locked .clue-num { color: var(--text-dim); }
+
+  .clue-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.53rem;
+    color: var(--chi-gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .clue-text { font-size: 0.88rem; line-height: 1.65; color: var(--chi-cream); }
+
+  .reveal-btn {
+    background: none;
+    border: 1px dashed rgba(255,255,255,0.2);
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.56rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 7px 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 8px;
+  }
+
+  .reveal-btn:hover { border-color: var(--chi-gold); color: var(--chi-gold); }
+  .reveal-penalty { font-size: 0.6rem; color: var(--chi-red); margin-top: 5px; font-family: 'DM Mono', monospace; letter-spacing: 0.05em; }
+
+  /* ── RIGHT / MAP PANEL ── */
+  .right-panel {
+    background: var(--chi-mid);
+    border-left: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .question-header {
+    padding: 16px 20px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+
+  .round-label { font-family: 'DM Mono', monospace; font-size: 0.56rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px; }
+  .question-text { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.03em; color: var(--chi-cream); }
+  .question-sub { font-size: 0.7rem; color: var(--text-dim); margin-top: 3px; }
+
+  .map-and-result {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .map-section { flex: 1; padding: 12px 12px 6px; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+  .map-label { font-family: 'DM Mono', monospace; font-size: 0.56rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); flex-shrink: 0; }
+
+  .map-wrapper {
+    flex: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+    cursor: crosshair;
+    background: #1a2d45;
+    min-height: 0;
+  }
+
+  #chicago-map { width: 100%; height: 100%; display: block; }
+  .map-instruction { font-size: 0.64rem; color: var(--text-dim); text-align: center; font-style: italic; flex-shrink: 0; }
+
+  .map-pin, .answer-pin {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    font-size: 1.5rem;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.6));
+    z-index: 10;
+    animation: pinDrop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes pinDrop {
+    from { transform: translate(-50%, -200%); opacity: 0; }
+    to { transform: translate(-50%, -100%); opacity: 1; }
+  }
+
+  .distance-badge {
+    position: absolute;
+    background: rgba(10,22,40,0.9);
+    border: 1px solid var(--chi-gold);
+    border-radius: 6px;
+    padding: 4px 9px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--chi-gold);
+    white-space: nowrap;
+    z-index: 20;
+    pointer-events: none;
+    animation: fadeInBadge 0.4s ease 0.3s both;
+  }
+
+  @keyframes fadeInBadge {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .submit-section { padding: 0 12px 10px; flex-shrink: 0; }
+
+  .btn-submit {
+    width: 100%;
+    padding: 12px;
+    background: var(--chi-gold);
+    color: var(--chi-blue);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-submit:hover:not(:disabled) { background: #ffb93a; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(244,165,41,0.35); }
+  .btn-submit:disabled { opacity: 0.32; cursor: not-allowed; }
+  .btn-submit.revealed { background: var(--chi-teal); color: white; cursor: default; }
+
+  /* ── RESULT PANEL ── */
+  .result-panel {
+    display: none;
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: rgba(10,22,40,0.95);
+    border-top: 1px solid rgba(244,165,41,0.25);
+    animation: slideUp 0.35s ease;
+    overflow-x: auto;
+  }
+
+  .result-panel.show { display: flex; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-score-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    min-width: 56px;
+  }
+
+  .result-score-big { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; line-height: 1; color: var(--chi-gold); }
+  .result-pts-label { font-family: 'DM Mono', monospace; font-size: 0.45rem; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; margin-top: -2px; }
+
+  .result-divider {
+    width: 1px;
+    align-self: stretch;
+    background: rgba(255,255,255,0.1);
+    flex-shrink: 0;
+  }
+
+  .result-distance-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    min-width: 60px;
+  }
+
+  .result-dist-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--chi-teal);
+  }
+
+  .result-dist-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.42rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .result-info { flex: 1; min-width: 0; }
+  .result-name { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; color: var(--chi-cream); letter-spacing: 0.04em; line-height: 1.1; }
+  .result-dist-verdict { font-size: 0.72rem; color: var(--chi-teal); margin-top: 2px; }
+  .result-fun-fact { font-size: 0.66rem; color: var(--text-dim); line-height: 1.5; margin-top: 4px; }
+  .result-fun-fact strong {
+    color: var(--chi-gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .btn-next {
+    flex-shrink: 0;
+    padding: 10px 16px;
+    background: var(--chi-red);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .btn-next:hover { background: #ff4a57; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(230,57,70,0.35); }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* SVG map styles */
+  .chi-map-bg { fill: #1a3050; }
+  .chi-lake { fill: #0d2035; }
+  .chi-neighborhood { fill: #1e3a5f; stroke: #2a4d75; stroke-width: 0.5; cursor: pointer; transition: fill 0.15s; }
+  .chi-neighborhood:hover { fill: #2a4d75; }
+  .chi-park { fill: #1d4a2e; }
+  .chi-road { stroke: #2a4070; stroke-width: 0.8; fill: none; }
+  .chi-label { font-family: 'DM Mono', monospace; font-size: 5px; fill: #4a6a8a; }
+
+  /* ── FINAL SCREEN ── */
+  .final-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 108px);
+    padding: 40px 24px;
+    text-align: center;
+    gap: 22px;
+    animation: fadeIn 0.6s ease;
+  }
+
+  .final-screen.show { display: flex; }
+  .game-container.hide { display: none; }
+
+  .final-title { font-family: 'Bebas Neue', sans-serif; font-size: 3.4rem; letter-spacing: 0.05em; color: var(--chi-gold); line-height: 1; }
+  .final-total { font-family: 'Bebas Neue', sans-serif; font-size: 6rem; color: var(--chi-cream); line-height: 1; }
+  .final-out-of { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--text-dim); letter-spacing: 0.15em; text-transform: uppercase; margin-top: -12px; }
+
+  .final-rank { background: var(--chi-mid); border: 1px solid rgba(244,165,41,0.3); border-radius: 12px; padding: 18px 32px; }
+  .rank-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; color: var(--chi-gold); }
+  .rank-desc { font-size: 0.78rem; color: var(--text-dim); margin-top: 4px; }
+
+  .score-breakdown { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 520px; }
+  .breakdown-item {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 14px;
+    min-width: 130px;
+  }
+  .breakdown-loc { font-family: 'DM Mono', monospace; font-size: 0.52rem; color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 3px; }
+  .breakdown-pts { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--chi-gold); }
+  .breakdown-dist { font-size: 0.65rem; color: var(--chi-teal); margin-top: 1px; }
+
+  .btn-play-again {
+    padding: 14px 44px;
+    background: var(--chi-gold);
+    color: var(--chi-blue);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-play-again:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(244,165,41,0.4); }
+
+  .new-game-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-top: -10px;
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-top: -10px;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  .btn-back:hover { color: var(--chi-gold); }
+
+  @media (max-width: 820px) {
+    .site-nav { padding: 1rem 1.5rem; }
+    .site-nav-links { display: none; }
+    .site-nav-hamburger { display: flex; }
+    .game-header-strip { top: 52px; }
+    .game-container { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; margin-top: 100px; }
+    .clue-panel { min-height: 48vh; }
+    .right-panel { min-height: 58vh; }
+    .clue-top { padding: 16px 22px 14px; }
+    .clues-section { padding: 14px 22px; }
+    .final-total { font-size: 5rem; }
+    .final-screen { min-height: calc(100vh - 100px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- SITE NAV -->
+<nav class="site-nav">
+  <a href="/" class="site-nav-logo">Outdoorsy Chicago</a>
+  <ul class="site-nav-links">
+    <li><a href="/#about">Who We Are</a></li>
+    <li><a href="/#gallery">Gallery</a></li>
+    <li><a href="/#events">Events</a></li>
+    <li><a href="/outdozen">The OutDozen</a></li>
+    <li><a href="/games" class="active">Games</a></li>
+    <li><a href="/#survey">Join Us</a></li>
+  </ul>
+  <button class="site-nav-hamburger" id="hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="site-mobile-menu" id="mobile-menu">
+  <a href="/#about" class="mobile-link">Who We Are</a>
+  <a href="/#gallery" class="mobile-link">Gallery</a>
+  <a href="/#events" class="mobile-link">Events</a>
+  <a href="/outdozen" class="mobile-link">The OutDozen</a>
+  <a href="/games" class="mobile-link">Games</a>
+  <a href="/#survey" class="mobile-link">Join Us</a>
+</div>
+
+<!-- GAME HEADER STRIP -->
+<div class="game-header-strip">
+  <div class="logo">
+    <div class="logo-main">Chi-Guesser</div>
+    <div class="logo-sub">Where in Chicago?</div>
+  </div>
+  <div class="score-bar">
+    <div class="round-dots" id="roundDots"></div>
+    <div class="score-item">
+      <div class="score-num" id="totalScoreDisplay">0</div>
+      <div class="score-label">Points</div>
+    </div>
+  </div>
+</div>
+
+<div class="game-container" id="gameContainer">
+
+  <!-- LEFT: CLUE PANEL -->
+  <div class="clue-panel">
+    <div class="clue-top">
+      <div class="category-badge" id="categoryBadge">LANDMARK</div>
+      <span class="location-icon" id="locationIcon">&#127961;&#65039;</span>
+      <div class="clue-eyebrow">Round <span id="clueRound">1</span> of 3 &mdash; Where in Chicago?</div>
+      <div class="clue-heading">READ THE CLUES</div>
+    </div>
+    <div class="clues-section">
+      <div class="clues-header">Guess with fewer clues = more points</div>
+      <div class="clue-card" id="clue1">
+        <div class="clue-num">Clue 01 &mdash; Always Free</div>
+        <div class="clue-text" id="clue1text">&mdash;</div>
+      </div>
+      <div class="clue-card locked" id="clue2">
+        <div class="clue-num" id="clue2num">Clue 02 &mdash; Locked</div>
+        <div class="clue-text" id="clue2text">Reveal for a stronger hint.</div>
+        <button class="reveal-btn" id="revealBtn2" onclick="revealClue(2)">Reveal Clue 02</button>
+        <div class="reveal-penalty">&minus;150 pts penalty</div>
+      </div>
+      <div class="clue-card locked" id="clue3">
+        <div class="clue-num" id="clue3num">Clue 03 &mdash; Locked</div>
+        <div class="clue-text" id="clue3text">Reveal for a big hint.</div>
+        <button class="reveal-btn" id="revealBtn3" onclick="revealClue(3)">Reveal Clue 03</button>
+        <div class="reveal-penalty">&minus;300 pts penalty</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: MAP PANEL -->
+  <div class="right-panel">
+    <div class="question-header">
+      <div class="round-label" id="roundLabel">Round 1 of 3</div>
+      <div class="question-text">DROP YOUR PIN</div>
+      <div class="question-sub">Closer = more points. Hints cost points.</div>
+    </div>
+
+    <div class="map-and-result">
+      <div class="map-section">
+        <div class="map-label">&#128205; Click the map to place your guess</div>
+        <div class="map-wrapper" id="mapWrapper">
+          <svg id="chicago-map" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+            <rect class="chi-lake" x="200" y="0" width="100" height="400"/>
+            <polygon class="chi-map-bg" points="60,20 200,20 200,380 40,380 30,300 20,200 30,100"/>
+            <rect class="chi-neighborhood" x="160" y="25" width="40" height="30"/>
+            <rect class="chi-neighborhood" x="160" y="55" width="40" height="20"/>
+            <rect class="chi-neighborhood" x="155" y="75" width="45" height="25"/>
+            <rect class="chi-neighborhood" x="110" y="65" width="45" height="30"/>
+            <rect class="chi-neighborhood" x="130" y="55" width="30" height="20"/>
+            <rect class="chi-neighborhood" x="160" y="100" width="40" height="30"/>
+            <rect class="chi-neighborhood" x="155" y="130" width="45" height="25"/>
+            <rect class="chi-neighborhood" x="140" y="95" width="22" height="20"/>
+            <rect class="chi-neighborhood" x="100" y="125" width="30" height="25"/>
+            <rect class="chi-neighborhood" x="90" y="148" width="35" height="25"/>
+            <rect class="chi-neighborhood" x="65" y="115" width="38" height="40"/>
+            <rect class="chi-neighborhood" x="155" y="155" width="40" height="20"/>
+            <rect class="chi-neighborhood" x="155" y="175" width="38" height="20"/>
+            <rect class="chi-neighborhood" x="163" y="147" width="32" height="15"/>
+            <rect class="chi-neighborhood" x="175" y="175" width="25" height="30"/>
+            <rect class="chi-neighborhood" x="157" y="193" width="40" height="25" style="fill:#243d60;"/>
+            <rect class="chi-neighborhood" x="130" y="190" width="28" height="28"/>
+            <rect class="chi-neighborhood" x="95" y="230" width="40" height="30"/>
+            <rect class="chi-neighborhood" x="60" y="225" width="38" height="32"/>
+            <rect class="chi-neighborhood" x="60" y="168" width="40" height="35"/>
+            <rect class="chi-neighborhood" x="28" y="165" width="35" height="40"/>
+            <rect class="chi-neighborhood" x="63" y="195" width="38" height="32"/>
+            <rect class="chi-neighborhood" x="130" y="250" width="35" height="28"/>
+            <rect class="chi-neighborhood" x="150" y="295" width="45" height="30"/>
+            <rect class="chi-neighborhood" x="155" y="255" width="40" height="42"/>
+            <rect class="chi-neighborhood" x="160" y="325" width="40" height="25"/>
+            <rect class="chi-neighborhood" x="118" y="290" width="38" height="30"/>
+            <rect class="chi-neighborhood" x="80" y="315" width="40" height="30"/>
+            <rect class="chi-neighborhood" x="120" y="340" width="40" height="30"/>
+            <rect class="chi-park" x="180" y="115" width="18" height="60" opacity="0.8"/>
+            <rect class="chi-park" x="172" y="195" width="22" height="35" opacity="0.7"/>
+            <rect class="chi-park" x="168" y="278" width="25" height="18" opacity="0.8"/>
+            <line class="chi-road" x1="155" y1="20" x2="155" y2="380"/>
+            <line class="chi-road" x1="100" y1="20" x2="100" y2="380"/>
+            <line class="chi-road" x1="60" y1="20" x2="60" y2="380"/>
+            <line class="chi-road" x1="20" y1="100" x2="200" y2="100"/>
+            <line class="chi-road" x1="20" y1="155" x2="200" y2="155"/>
+            <line class="chi-road" x1="20" y1="210" x2="200" y2="210"/>
+            <line class="chi-road" x1="20" y1="270" x2="200" y2="270"/>
+            <line class="chi-road" x1="20" y1="320" x2="200" y2="320"/>
+            <line class="chi-road" x1="160" y1="155" x2="55" y2="90"/>
+            <line stroke="#1a4a6a" stroke-width="2" fill="none" x1="200" y1="20" x2="200" y2="380"/>
+            <text class="chi-label" x="185" y="35">ROGERS PK</text>
+            <text class="chi-label" x="160" y="115">LAKEVIEW</text>
+            <text class="chi-label" x="158" y="145">LINCOLN PK</text>
+            <text class="chi-label" x="158" y="205">THE LOOP</text>
+            <text class="chi-label" x="152" y="305">HYDE PK</text>
+            <text class="chi-label" x="63" y="235">LIL VLG</text>
+            <text class="chi-label" x="68" y="180">HUMBOLDT</text>
+            <text class="chi-label" x="208" y="50" style="fill:#1a4a6a;">LAKE</text>
+            <text class="chi-label" x="205" y="60" style="fill:#1a4a6a;">MICHIGAN</text>
+            <text class="chi-label" x="92" y="138">WICKER PK</text>
+            <text class="chi-label" x="62" y="128">LOGAN SQ</text>
+            <text x="22" y="38" style="font-size:8px;fill:#4a6a8a;">N</text>
+            <line stroke="#4a6a8a" stroke-width="0.8" x1="26" y1="28" x2="26" y2="40"/>
+          </svg>
+        </div>
+        <div class="map-instruction" id="mapInstruction">Tap anywhere on the map to place your guess</div>
+      </div>
+      <div class="submit-section">
+        <button class="btn-submit" id="submitBtn" disabled>Drop Your Pin First</button>
+      </div>
+
+      <div class="result-panel" id="resultPanel">
+        <div class="result-score-chip">
+          <div class="result-score-big" id="resultScore">0</div>
+          <div class="result-pts-label">pts</div>
+        </div>
+        <div class="result-divider"></div>
+        <div class="result-distance-box">
+          <div class="result-dist-num" id="resultDistNum">0.0</div>
+          <div class="result-dist-label">mi off</div>
+        </div>
+        <div class="result-divider"></div>
+        <div class="result-info">
+          <div class="result-name" id="resultName"></div>
+          <div class="result-dist-verdict" id="resultVerdict"></div>
+          <div class="result-fun-fact" id="resultFact"></div>
+        </div>
+        <button class="btn-next" id="nextBtn">Next &rarr;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL SCREEN -->
+<div class="final-screen" id="finalScreen">
+  <div class="final-title">Game Over, Chi-Town!</div>
+  <div class="final-total" id="finalTotal">0</div>
+  <div class="final-out-of">OUT OF 3000 POINTS</div>
+  <div class="final-rank" id="finalRank"></div>
+  <div class="score-breakdown" id="scoreBreakdown"></div>
+  <button class="btn-play-again" onclick="restartGame()">Play Again</button>
+  <div class="new-game-note">3 new random locations every game &mdash; from a pool of 15</div>
+  <a href="/games" class="btn-back">&larr; Back to Games</a>
+</div>
+
+<script>
+const ALL_LOCATIONS = [
+  {
+    name: "Millennium Park",
+    category: "LANDMARK", icon: "🫘",
+    clues: [
+      "This outdoor gathering space opened in 2004 on the former site of a railroad yard along the lakefront, just east of the Loop.",
+      "It hosts a world-famous outdoor concert pavilion designed by Frank Gehry, with a sweeping silver ribbon steel headdress visible for blocks.",
+      "A giant mirrored bean-shaped sculpture sits at its center, reflecting the entire downtown skyline overhead — it's the most photographed spot in Chicago."
+    ],
+    funFact: "Cloud Gate (the Bean) weighs 110 tons and is made of 168 polished stainless steel plates with no visible seams.",
+    x: 180, y: 205
+  },
+  {
+    name: "Lincoln Park Zoo",
+    category: "PARK", icon: "🦁",
+    clues: [
+      "Nestled in a long, narrow lakefront park on the North Side, this is one of the oldest zoological gardens in North America.",
+      "It has never charged admission since it was founded in 1868 — making it one of the last free zoos in the entire United States.",
+      "You'll find gorillas, polar bears, and lions just steps from a historic lagoon, paddle boats, and the Lakeview neighborhood."
+    ],
+    funFact: "Lincoln Park Zoo started with just a pair of donated swans from Central Park in New York City in 1868.",
+    x: 185, y: 142
+  },
+  {
+    name: "Wicker Park",
+    category: "NEIGHBORHOOD", icon: "🎸",
+    clues: [
+      "This Northwest Side neighborhood was Chicago's most fashionable address in the 1880s, lined with ornate Victorian mansions.",
+      "It sits where Milwaukee Avenue cuts diagonally through the street grid, bordering Bucktown to the north and Humboldt Park to the west.",
+      "Known today for indie music venues, vintage shops, and a famous six-corner elevated rail stop at North, Damen, and Milwaukee."
+    ],
+    funFact: "Wicker Park inspired Wilco's landmark 2001 album 'Yankee Hotel Foxtrot' and has been central to Chicago's alternative music scene for decades.",
+    x: 108, y: 158
+  },
+  {
+    name: "Hyde Park",
+    category: "NEIGHBORHOOD", icon: "🎓",
+    clues: [
+      "This historic South Side neighborhood sits directly on the lakefront, about 7 miles south of downtown, adjacent to Jackson Park.",
+      "It's home to a world-renowned research university founded in 1890 whose campus features Gothic stone buildings and a famous underground nuclear reactor.",
+      "A US president lived here before the White House — and his presidential center is being built nearby in the adjacent park."
+    ],
+    funFact: "The world's first artificial nuclear reactor achieved criticality right here in December 1942, secretly built under the university's old Stagg Field bleachers.",
+    x: 168, y: 308
+  },
+  {
+    name: "The 606 Trail",
+    category: "OUTDOORS", icon: "🚲",
+    clues: [
+      "This elevated trail was built on top of a former freight rail embankment that stopped carrying trains in the early 1990s.",
+      "It runs 2.7 miles through four Northwest Side neighborhoods — Bucktown, Wicker Park, Humboldt Park, and Logan Square.",
+      "Named after Chicago's universal ZIP code prefix, it opened in 2015 and was directly modeled after New York City's High Line."
+    ],
+    funFact: "Before becoming a trail, the Bloomingdale Line carried goods like ice, coal, and livestock through dense Chicago neighborhoods.",
+    x: 115, y: 135
+  },
+  {
+    name: "Navy Pier",
+    category: "LANDMARK", icon: "🎡",
+    clues: [
+      "This massive structure juts nearly half a mile into Lake Michigan, built in 1916 originally as a freight and passenger terminal.",
+      "During World War II it was used as a Naval training facility — hence its current name, which it received in 1927.",
+      "Today it's home to a giant Ferris wheel, an IMAX theater, beer gardens, and one of Chicago's most popular festival venues."
+    ],
+    funFact: "Navy Pier stretches 3,000 feet into Lake Michigan — it was the longest pier in the world when it opened in 1916.",
+    x: 195, y: 185
+  },
+  {
+    name: "Pilsen",
+    category: "NEIGHBORHOOD", icon: "🎨",
+    clues: [
+      "This Lower West Side neighborhood was settled by Czech and Bohemian immigrants in the late 1800s, who named it after a city in their homeland.",
+      "Today it's Chicago's hub for Mexican-American culture, with the National Museum of Mexican Art and vibrant murals covering nearly every exterior wall.",
+      "It sits just south of the Chicago River's South Branch and has become one of the city's most celebrated arts districts."
+    ],
+    funFact: "Pilsen's 18th Street is lined with over 100 murals, making it one of the most densely muraled corridors in the entire United States.",
+    x: 105, y: 242
+  },
+  {
+    name: "Logan Square",
+    category: "NEIGHBORHOOD", icon: "🌳",
+    clues: [
+      "This Northwest Side neighborhood is anchored by a large tree-lined boulevard with a historic limestone column at its center.",
+      "It was developed in the late 1800s along the Milwaukee Avenue corridor as an affluent streetcar suburb with grand greystones.",
+      "Today it's packed with acclaimed restaurants, craft breweries, and a nationally recognized independent music venue — the Logan Theatre."
+    ],
+    funFact: "Logan Square sits at the intersection of three of Chicago's historic diagonal boulevards, part of a 19th-century parkway system designed to rival Paris.",
+    x: 78, y: 130
+  },
+  {
+    name: "Bridgeport",
+    category: "NEIGHBORHOOD", icon: "⚾",
+    clues: [
+      "This South Side neighborhood sits along the Chicago River's South Branch and has been the center of Chicago machine politics for over a century.",
+      "It is the birthplace of five Chicago mayors, including Richard J. Daley and his son Richard M. Daley, who together governed for nearly 43 years.",
+      "It's home to Guaranteed Rate Field, where the Chicago White Sox have played since 1991."
+    ],
+    funFact: "Bridgeport was so named because a low bridge on Ashland Avenue once stopped canal boats — forcing goods to be transferred by hand.",
+    x: 148, y: 262
+  },
+  {
+    name: "Andersonville",
+    category: "NEIGHBORHOOD", icon: "🇸🇪",
+    clues: [
+      "This Far North Side neighborhood was settled by Swedish immigrants in the late 1800s and still has traces of its Scandinavian heritage in its shops and bakeries.",
+      "Today it's one of Chicago's most celebrated LGBTQ+ neighborhoods, known for its independent boutiques and acclaimed restaurants.",
+      "It sits along Clark Street, roughly halfway between Wrigleyville to the south and Rogers Park to the north."
+    ],
+    funFact: "Andersonville's Women & Children First bookstore, founded in 1979, is one of the oldest feminist bookstores in the country.",
+    x: 170, y: 62
+  },
+  {
+    name: "The Riverwalk",
+    category: "OUTDOORS", icon: "🚣",
+    clues: [
+      "This linear waterfront promenade runs along the south bank of the Chicago River through the heart of downtown, stretching about 1.25 miles.",
+      "It passes beneath some of Chicago's most famous drawbridges and offers views of the iconic skyline from water level.",
+      "Opened in its current form in 2015, it features kayak rentals, outdoor restaurants, and regular performances right along the water."
+    ],
+    funFact: "Chicago reversed the flow of its river in 1900 — one of the greatest engineering feats of the era — so sewage would flow away from Lake Michigan.",
+    x: 162, y: 196
+  },
+  {
+    name: "Bronzeville",
+    category: "NEIGHBORHOOD", icon: "🎷",
+    clues: [
+      "This South Side neighborhood was the center of the Great Migration, when hundreds of thousands of Black Americans moved north from the South.",
+      "Known as the 'Black Metropolis,' it was a self-sufficient city-within-a-city with its own newspapers, nightclubs, and jazz and blues culture.",
+      "It sits just south of the Museum Campus and north of Hyde Park, along the lakefront."
+    ],
+    funFact: "Bronzeville's 'Stroll' on 35th and State Street was the jazz and blues capital of the Midwest, launching careers of Louis Armstrong, Nat King Cole, and many others.",
+    x: 167, y: 270
+  },
+  {
+    name: "Humboldt Park",
+    category: "PARK", icon: "🇵🇷",
+    clues: [
+      "This West Side neighborhood is anchored by a 207-acre park featuring a lagoon, boathouse, and one of the city's great prairie-style fieldhouses.",
+      "It is the heart of Chicago's Puerto Rican community — the neighborhood's main boulevard features two massive steel Puerto Rican flags that arch over the road.",
+      "The park itself was designed by landscape architect Jens Jensen, considered one of his masterpieces of the 'Prairie Style.'"
+    ],
+    funFact: "The two steel Puerto Rican flags on Paseo Boricua were installed in 1995 and weigh 45 tons each — they're the largest Puerto Rican flags in the world.",
+    x: 72, y: 182
+  },
+  {
+    name: "Rogers Park",
+    category: "NEIGHBORHOOD", icon: "🌍",
+    clues: [
+      "This Far North Side neighborhood borders Evanston and is Chicago's most ethnically diverse — over 80 languages are spoken here.",
+      "It hugs the Lake Michigan shoreline and has a series of small beaches that are far less crowded than the famous downtown strands.",
+      "Home to Loyola University Chicago's lakeside campus, it has a laid-back, bohemian energy unlike almost anywhere else in the city."
+    ],
+    funFact: "Rogers Park is the only Chicago neighborhood that touches Lake Michigan on its east AND has the city limit on its north — it's the city's true northeastern corner.",
+    x: 178, y: 32
+  },
+  {
+    name: "Little Village",
+    category: "NEIGHBORHOOD", icon: "🌮",
+    clues: [
+      "Known as 'La Villita,' this Southwest Side neighborhood is home to the second-largest Mexican community in the United States, after East Los Angeles.",
+      "Its main commercial strip on 26th Street is the second-highest sales tax generating retail corridor in all of Illinois — topped only by the Magnificent Mile.",
+      "The neighborhood's famous arch gateway on 26th Street has welcomed visitors since 1991."
+    ],
+    funFact: "Little Village's 26th Street generates more retail sales than Michigan Avenue's Magnificent Mile, making it one of the most economically powerful immigrant commercial corridors in the US.",
+    x: 72, y: 238
+  }
+];
+
+const ROUNDS_PER_GAME = 3;
+let gameLocations = [];
+let currentRound = 0, totalScore = 0, roundScores = [];
+let pinX = 0, pinY = 0, pinPlaced = false, penaltyThisRound = 0;
+
+function pickRandom(arr, n) {
+  return [...arr].sort(() => Math.random() - 0.5).slice(0, n);
+}
+
+function initGame() {
+  gameLocations = pickRandom(ALL_LOCATIONS, ROUNDS_PER_GAME);
+  currentRound = 0; totalScore = 0; roundScores = [];
+  document.getElementById('totalScoreDisplay').textContent = '0';
+  document.getElementById('gameContainer').classList.remove('hide');
+  document.getElementById('finalScreen').classList.remove('show');
+  buildDots(); loadRound();
+}
+
+function buildDots() {
+  const c = document.getElementById('roundDots'); c.innerHTML = '';
+  gameLocations.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.id = 'dot-' + i; c.appendChild(d);
+  });
+}
+
+function updateDots() {
+  gameLocations.forEach((_, i) => {
+    const d = document.getElementById('dot-' + i); if (!d) return;
+    d.className = 'dot';
+    if (i < currentRound) d.classList.add('done');
+    if (i === currentRound) d.classList.add('active');
+  });
+}
+
+function loadRound() {
+  const loc = gameLocations[currentRound];
+  pinPlaced = false; penaltyThisRound = 0;
+
+  document.getElementById('categoryBadge').textContent = loc.category;
+  document.getElementById('locationIcon').textContent = loc.icon;
+  document.getElementById('clueRound').textContent = currentRound + 1;
+  document.getElementById('roundLabel').textContent = 'Round ' + (currentRound + 1) + ' of ' + ROUNDS_PER_GAME;
+  updateDots();
+
+  const c1 = document.getElementById('clue1');
+  document.getElementById('clue1text').textContent = loc.clues[0];
+  c1.classList.remove('locked'); c1.classList.remove('visible');
+  setTimeout(() => c1.classList.add('visible'), 80);
+
+  [2, 3].forEach(n => {
+    const card = document.getElementById('clue' + n);
+    card.classList.add('locked'); card.classList.remove('visible');
+    document.getElementById('clue' + n + 'text').textContent = n === 2 ? 'Reveal for a stronger hint.' : 'Reveal for a big hint.';
+    document.getElementById('clue' + n + 'num').textContent = 'Clue 0' + n + ' — Locked';
+    document.getElementById('revealBtn' + n).style.display = 'inline-block';
+    card.querySelector('.reveal-penalty').style.display = 'block';
+    setTimeout(() => card.classList.add('visible'), n === 2 ? 200 : 320);
+  });
+
+  clearMapOverlays();
+  const sb = document.getElementById('submitBtn');
+  sb.disabled = true; sb.textContent = 'Drop Your Pin First'; sb.className = 'btn-submit';
+  document.getElementById('resultPanel').classList.remove('show');
+  document.getElementById('mapInstruction').textContent = 'Tap anywhere on the map to place your guess';
+}
+
+function revealClue(num) {
+  const loc = gameLocations[currentRound];
+  const penalty = num === 2 ? 150 : 300;
+  penaltyThisRound += penalty;
+  const card = document.getElementById('clue' + num);
+  document.getElementById('clue' + num + 'text').textContent = loc.clues[num - 1];
+  document.getElementById('clue' + num + 'num').textContent = 'Clue 0' + num + ' — Revealed (\u2212' + penalty + ' pts)';
+  card.classList.remove('locked');
+  document.getElementById('revealBtn' + num).style.display = 'none';
+  card.querySelector('.reveal-penalty').style.display = 'none';
+}
+
+document.getElementById('mapWrapper').addEventListener('click', function(e) {
+  if (document.getElementById('resultPanel').classList.contains('show')) return;
+  const rect = this.getBoundingClientRect();
+  const rawX = e.clientX - rect.left, rawY = e.clientY - rect.top;
+  pinX = (rawX / rect.width) * 300;
+  pinY = (rawY / rect.height) * 400;
+  clearMapOverlays();
+  placePin(rawX, rawY, '📍', 'map-pin', 'userPin');
+  pinPlaced = true;
+  const sb = document.getElementById('submitBtn');
+  sb.disabled = false; sb.textContent = 'Lock In My Guess!';
+  document.getElementById('mapInstruction').textContent = 'Click to move pin \u2022 or lock it in below';
+});
+
+function placePin(x, y, emoji, css, id) {
+  const old = document.getElementById(id); if (old) old.remove();
+  const el = document.createElement('div');
+  el.className = css; el.id = id; el.textContent = emoji;
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  document.getElementById('mapWrapper').appendChild(el);
+}
+
+function clearMapOverlays() {
+  ['userPin','answerPin','distanceLine','distanceBadge'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.remove();
+  });
+}
+
+document.getElementById('submitBtn').addEventListener('click', function() {
+  if (!pinPlaced || this.classList.contains('revealed')) return;
+  const loc = gameLocations[currentRound];
+  const rect = document.getElementById('mapWrapper').getBoundingClientRect();
+  const dx = pinX - loc.x, dy = pinY - loc.y;
+  const distSVG = Math.sqrt(dx * dx + dy * dy);
+  const distMiles = (distSVG / 300) * 30;
+  const base = Math.max(0, Math.round(1000 * Math.exp(-distMiles / 3)));
+  const points = Math.max(0, base - penaltyThisRound);
+  roundScores.push({ name: loc.name, pts: points, dist: distMiles });
+  totalScore += points;
+  document.getElementById('totalScoreDisplay').textContent = totalScore;
+
+  const ansX = (loc.x / 300) * rect.width;
+  const ansY = (loc.y / 400) * rect.height;
+  placePin(ansX, ansY, '🎯', 'answer-pin', 'answerPin');
+  drawLine(pinX, pinY, loc.x, loc.y, rect);
+
+  const userPxX = (pinX / 300) * rect.width;
+  const userPxY = (pinY / 400) * rect.height;
+  showDistanceBadge((userPxX + ansX) / 2, (userPxY + ansY) / 2, distMiles);
+
+  document.getElementById('resultScore').textContent = points;
+  document.getElementById('resultName').textContent = loc.name;
+  document.getElementById('resultDistNum').textContent = distMiles < 0.1 ? '< 0.1' : distMiles.toFixed(1);
+
+  const verdicts = [
+    { max: 0.3,  text: "Basically standing there! 🏆" },
+    { max: 1,    text: "Spot on — great guess! 🎉" },
+    { max: 2.5,  text: "Very close — nice work! 👏" },
+    { max: 5,    text: "In the ballpark!" },
+    { max: 10,   text: "A bit off — but you're learning!" },
+    { max: 999,  text: "Keep exploring Chicago! 🗺️" }
+  ];
+  const verdict = verdicts.find(v => distMiles <= v.max);
+  document.getElementById('resultVerdict').textContent = verdict ? verdict.text : '';
+
+  const penNote = penaltyThisRound > 0 ? '<br><span style="color:var(--chi-red);font-size:0.7rem;">\u2212' + penaltyThisRound + ' hint penalty applied</span>' : '';
+  document.getElementById('resultFact').innerHTML = '<strong>\uD83D\uDCD6 Fun Fact</strong>' + loc.funFact + penNote;
+  document.getElementById('resultPanel').classList.add('show');
+  this.classList.add('revealed');
+  this.textContent = 'Guessed!';
+});
+
+function drawLine(x1svg, y1svg, x2svg, y2svg, rect) {
+  const px1 = (x1svg / 300) * rect.width, py1 = (y1svg / 400) * rect.height;
+  const px2 = (x2svg / 300) * rect.width, py2 = (y2svg / 400) * rect.height;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.id = 'distanceLine';
+  svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:8;';
+  const shadow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  shadow.setAttribute('x1', px1); shadow.setAttribute('y1', py1);
+  shadow.setAttribute('x2', px2); shadow.setAttribute('y2', py2);
+  shadow.setAttribute('stroke', 'rgba(0,0,0,0.4)');
+  shadow.setAttribute('stroke-width', '4');
+  shadow.setAttribute('stroke-linecap', 'round');
+  svg.appendChild(shadow);
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', px1); line.setAttribute('y1', py1);
+  line.setAttribute('x2', px2); line.setAttribute('y2', py2);
+  line.setAttribute('stroke', '#f4a529');
+  line.setAttribute('stroke-width', '2.5');
+  line.setAttribute('stroke-dasharray', '6,4');
+  line.setAttribute('stroke-linecap', 'round');
+  line.setAttribute('opacity', '0.9');
+  svg.appendChild(line);
+  document.getElementById('mapWrapper').appendChild(svg);
+}
+
+function showDistanceBadge(midX, midY, distMiles) {
+  const badge = document.createElement('div');
+  badge.className = 'distance-badge';
+  badge.id = 'distanceBadge';
+  badge.textContent = distMiles < 0.1 ? '< 0.1 mi off' : distMiles.toFixed(1) + ' mi off';
+  badge.style.left = (midX - 40) + 'px';
+  badge.style.top = (midY - 22) + 'px';
+  document.getElementById('mapWrapper').appendChild(badge);
+}
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  currentRound++;
+  if (currentRound >= ROUNDS_PER_GAME) showFinal();
+  else loadRound();
+});
+
+function showFinal() {
+  document.getElementById('gameContainer').classList.add('hide');
+  document.getElementById('finalScreen').classList.add('show');
+  document.getElementById('finalTotal').textContent = totalScore;
+  const pct = totalScore / (ROUNDS_PER_GAME * 1000);
+  let rank, desc;
+  if (pct >= 0.88)      { rank = "Chicago Native 🏆";      desc = "You know every alley, trail, and corner. Legendary."; }
+  else if (pct >= 0.70) { rank = "City Dweller 🌆";         desc = "You've clearly put in the miles. Impressive!"; }
+  else if (pct >= 0.50) { rank = "Weekend Explorer 🚲";     desc = "You know the highlights — time to go deeper."; }
+  else if (pct >= 0.30) { rank = "Tourist Mode 🗺️";         desc = "Chicago has so much more to show you!"; }
+  else                  { rank = "Fresh off the Plane ✈️";  desc = "Welcome to Chicago! Time to start exploring."; }
+  document.getElementById('finalRank').innerHTML =
+    '<div class="rank-title">' + rank + '</div><div class="rank-desc">' + desc + '</div>';
+  document.getElementById('scoreBreakdown').innerHTML = roundScores.map(r =>
+    '<div class="breakdown-item">' +
+    '<div class="breakdown-loc">' + r.name + '</div>' +
+    '<div class="breakdown-pts">' + r.pts + ' pts</div>' +
+    '<div class="breakdown-dist">' + (r.dist < 0.1 ? '< 0.1' : r.dist.toFixed(1)) + ' mi off</div>' +
+    '</div>'
+  ).join('');
+}
+
+function restartGame() { initGame(); }
+
+initGame();
+</script>
+
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+  });
+  document.querySelectorAll('.mobile-link').forEach(link => {
+    link.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    });
+  });
+</script>
+</body>
+</html>

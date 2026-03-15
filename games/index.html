@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Games — Outdoorsy Chicago</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --forest: #2d4a3e;
+      --sage: #7a9e8e;
+      --sand: #e8dcc8;
+      --cream: #f5f0e8;
+      --bark: #5c4a32;
+      --sky: #a8c4b8;
+      --accent: #c4793a;
+      --dark: #1a2e26;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    .site-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 3rem;
+      background: rgba(245, 240, 232, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(122,158,142,0.2);
+    }
+    .site-nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--forest);
+      font-style: italic;
+      text-decoration: none;
+    }
+    .site-nav-links { display: flex; gap: 2rem; list-style: none; }
+    .site-nav-links a {
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bark);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .site-nav-links a:hover, .site-nav-links a.active { color: var(--accent); }
+    .site-nav-hamburger {
+      display: none; flex-direction: column; justify-content: center;
+      gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; z-index: 101;
+    }
+    .site-nav-hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--forest);
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .site-nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .site-nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .site-nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .site-mobile-menu {
+      display: none; position: fixed; top: 0; left: 0; right: 0;
+      background: rgba(245, 240, 232, 0.97); backdrop-filter: blur(12px);
+      padding: 5rem 2rem 2rem; z-index: 99;
+      flex-direction: column; gap: 0;
+      border-bottom: 1px solid rgba(122,158,142,0.2);
+    }
+    .site-mobile-menu.open { display: flex; }
+    .site-mobile-menu a {
+      font-size: 1rem; font-weight: 500; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--bark);
+      text-decoration: none; padding: 1rem 0;
+      border-bottom: 1px solid rgba(122,158,142,0.15); transition: color 0.2s;
+    }
+    .site-mobile-menu a:last-child { border-bottom: none; }
+    .site-mobile-menu a:hover { color: var(--accent); }
+
+    /* PAGE HERO */
+    .games-hero {
+      padding-top: 80px;
+      background: var(--dark);
+      color: var(--cream);
+      padding-bottom: 5rem;
+    }
+    .games-hero-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 5rem 3rem 0;
+    }
+    .games-eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 1.2rem;
+    }
+    .games-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 4vw, 3.6rem);
+      line-height: 1.1;
+      color: var(--cream);
+      margin-bottom: 1.2rem;
+    }
+    .games-title em { font-style: italic; color: var(--sky); }
+    .games-sub {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: rgba(232,220,200,0.7);
+      max-width: 480px;
+      font-weight: 300;
+    }
+
+    /* GAMES GRID */
+    .games-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 5rem 3rem;
+    }
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+
+    /* GAME CARD */
+    .game-card {
+      background: var(--dark);
+      border-radius: 4px;
+      overflow: hidden;
+      text-decoration: none;
+      color: var(--cream);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .game-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(26,46,38,0.25);
+    }
+    .game-card-preview {
+      height: 200px;
+      background: #0a1628;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .game-card-preview::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 40%, rgba(196,121,58,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 70%, rgba(122,158,142,0.1) 0%, transparent 50%);
+    }
+    .game-preview-icon {
+      font-size: 4rem;
+      position: relative;
+      filter: drop-shadow(0 4px 16px rgba(196,121,58,0.3));
+    }
+    .game-card-body {
+      padding: 1.6rem 1.8rem 2rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .game-tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 0.6rem;
+    }
+    .game-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--cream);
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+    .game-tagline {
+      font-size: 0.8rem;
+      color: rgba(232,220,200,0.55);
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+    .game-desc {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: rgba(232,220,200,0.72);
+      font-weight: 300;
+      flex: 1;
+      margin-bottom: 1.4rem;
+    }
+    .game-cta {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--cream);
+      padding: 0.75rem 1.6rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      align-self: flex-start;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .game-card:hover .game-cta {
+      background: #d4893a;
+      transform: translateX(3px);
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--dark);
+      color: rgba(232,220,200,0.5);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 3rem;
+      font-size: 0.8rem;
+    }
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--sand);
+      font-style: italic;
+    }
+    .footer-links { display: flex; gap: 2rem; }
+    footer a { color: rgba(232,220,200,0.5); text-decoration: none; transition: color 0.2s; }
+    footer a:hover { color: var(--sky); }
+
+    @media (max-width: 768px) {
+      .site-nav { padding: 1rem 1.5rem; }
+      .site-nav-links { display: none; }
+      .site-nav-hamburger { display: flex; }
+      .games-hero-inner { padding: 4rem 1.5rem 0; }
+      .games-section { padding: 3rem 1.5rem; }
+      .games-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+      footer .footer-links { flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <a href="/" class="site-nav-logo">Outdoorsy Chicago</a>
+    <ul class="site-nav-links">
+      <li><a href="/#about">Who We Are</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#events">Events</a></li>
+      <li><a href="/outdozen">The OutDozen</a></li>
+      <li><a href="/games" class="active">Games</a></li>
+      <li><a href="/#survey">Join Us</a></li>
+    </ul>
+    <button class="site-nav-hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="site-mobile-menu" id="mobile-menu">
+    <a href="/#about" class="mobile-link">Who We Are</a>
+    <a href="/#gallery" class="mobile-link">Gallery</a>
+    <a href="/#events" class="mobile-link">Events</a>
+    <a href="/outdozen" class="mobile-link">The OutDozen</a>
+    <a href="/games" class="mobile-link">Games</a>
+    <a href="/#survey" class="mobile-link">Join Us</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="games-hero">
+    <div class="games-hero-inner">
+      <p class="games-eyebrow">Outdoorsy Chicago &middot; Play</p>
+      <h1 class="games-title">Know your <em>city.</em></h1>
+      <p class="games-sub">Chicago-themed games built for people who actually get outside. Test your knowledge, compete with the crew, and see the city differently.</p>
+    </div>
+  </section>
+
+  <!-- GAMES GRID -->
+  <section class="games-section">
+    <div class="games-grid">
+
+      <!-- Chi-Guesser -->
+      <a href="/games/chicago-guesser" class="game-card">
+        <div class="game-card-preview">
+          <span class="game-preview-icon">&#128205;</span>
+        </div>
+        <div class="game-card-body">
+          <p class="game-tag">Map &middot; Geography</p>
+          <h2 class="game-name">Chi-Guesser</h2>
+          <p class="game-tagline">Where in Chicago?</p>
+          <p class="game-desc">Read the clues, drop a pin on the map. Guess where famous Chicago landmarks, neighborhoods, and hidden spots are hiding &mdash; fewer hints means more points.</p>
+          <span class="game-cta">Play Now &rarr;</span>
+        </div>
+      </a>
+
+      <!-- WordPop -->
+      <a href="/games/word-puzzle" class="game-card">
+        <div class="game-card-preview">
+          <span class="game-preview-icon">&#128292;</span>
+        </div>
+        <div class="game-card-body">
+          <p class="game-tag">Word &middot; Trivia</p>
+          <h2 class="game-name">Chi-Words</h2>
+          <p class="game-tagline">Guess the Chicago outdoor term</p>
+          <p class="game-desc">Race the clock to guess Chicago outdoor words from clues. Lakefront trails, kayak routes, hidden parks &mdash; how well do you know your city?</p>
+          <span class="game-cta">Play Now &rarr;</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Outdoorsy Chicago</div>
+    <p>&copy; 2026 Outdoorsy Chicago. Made with love lakeside.</p>
+    <div class="footer-links">
+      <a href="/#about">About</a>
+      <a href="/#gallery">Gallery</a>
+      <a href="/#events">Events</a>
+      <a href="/outdozen">The OutDozen</a>
+      <a href="/games">Games</a>
+      <a href="/#survey">Join</a>
+    </div>
+  </footer>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+    });
+    document.querySelectorAll('.mobile-link').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+      });
+    });
+  </script>
+</body>
+</html>

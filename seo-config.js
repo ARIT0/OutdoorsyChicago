@@ -18,10 +18,10 @@ const SEO = {
 
   // ── Home page ────────────────────────────────────────────
   home: {
-    title:        "Outdoorsy Chicago | Chicago Outdoor Adventure Community",
+    title:        "Outdoorsy Chicago | 20s and 30s Outdoors Group",
     description:  "Join 300+ Chicagoans exploring hiking, kayaking, camping, and day trips. Outdoorsy Chicago is the community for adventurous 20s & 30s in the city.",
     canonicalUrl: "https://www.outdoorsychicago.com/",
-    ogImage:      "https://www.outdoorsychicago.com/images/google-image.png"
+    ogImage:      "https://www.outdoorsychicago.com/images/og-outdoorsy-chicago.jpg"
   },
 
   // ── OutDozen page ────────────────────────────────────────
