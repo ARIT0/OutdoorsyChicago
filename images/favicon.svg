@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#2d4a3e"/>
+  <!-- Pine tree -->
+  <polygon points="16,5  9,14  12,14  10,20  13,20  11,27  21,27  19,20  22,20  20,14  23,14" fill="#f5f0e8"/>
+</svg>
