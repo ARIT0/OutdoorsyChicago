@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FIFA World Cup 2026 — Chicago Watch Party</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet"/>
+
+  <!-- Firebase v9 compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- React 18 + Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Barlow', Arial, sans-serif;
+      background: #0f1117;
+      color: #e8e8e8;
+      -webkit-font-smoothing: antialiased;
+    }
+    #root { min-height: 100vh; }
+
+    /* ── scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f1117; }
+    ::-webkit-scrollbar-thumb { background: #2a2f3e; border-radius: 3px; }
+
+    /* ── loading ── */
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      height: 100vh; color: #555; font-size: 14px; letter-spacing: 2px;
+    }
+
+    /* ── name gate ── */
+    .gate {
+      min-height: 100vh; display: flex; align-items: center;
+      justify-content: center; padding: 16px;
+      background: linear-gradient(135deg, #0d1b2a 0%, #0f1117 50%, #1a0d0d 100%);
+    }
+    .gate-card {
+      background: #1a1e2d; border: 1px solid #c8a20033;
+      border-radius: 16px; padding: 36px 28px;
+      width: 100%; max-width: 360px; text-align: center;
+    }
+    .gate-trophy { font-size: 52px; margin-bottom: 14px; }
+    .gate-title { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; color: #fff; letter-spacing: 1px; }
+    .gate-sub { font-size: 12px; color: #7ab4e4; letter-spacing: 2px; margin: 4px 0 28px; text-transform: uppercase; }
+    .gate-hint { font-size: 13px; color: #666; margin-bottom: 14px; }
+    .gate-input {
+      display: block; width: 100%; background: #0f1117;
+      border: 1px solid #2a3a5e; border-radius: 8px;
+      padding: 13px 14px; color: #e8e8e8; font-size: 15px;
+      font-family: inherit; margin-bottom: 12px; outline: none;
+      text-align: center; transition: border-color .2s;
+    }
+    .gate-input:focus { border-color: #c8a200; }
+    .gate-btn {
+      display: block; width: 100%; background: #c8a200;
+      border: none; border-radius: 8px; padding: 13px;
+      color: #000; font-weight: 900; font-size: 15px;
+      cursor: pointer; font-family: inherit; letter-spacing: .5px;
+      transition: background .2s; margin-bottom: 10px;
+    }
+    .gate-btn:hover { background: #dbb800; }
+    .gate-btn-ghost {
+      display: block; width: 100%; background: transparent;
+      border: 1px solid #333; border-radius: 8px; padding: 11px;
+      color: #666; font-size: 13px; cursor: pointer; font-family: inherit;
+      transition: border-color .2s;
+    }
+    .gate-btn-ghost:hover { border-color: #555; color: #999; }
+
+    /* ── header ── */
+    .header {
+      background: linear-gradient(135deg, #0d1b2a 0%, #1a3a5c 50%, #0d1b2a 100%);
+      padding: 12px 16px; display: flex; justify-content: space-between;
+      align-items: center; border-bottom: 2px solid #c8a200;
+      position: sticky; top: 0; z-index: 200;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-badge {
+      background: #c8a200; color: #000; font-weight: 900;
+      font-size: 11px; padding: 4px 8px; letter-spacing: 2px; border-radius: 3px;
+    }
+    .header-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 900; color: #fff; }
+    .header-sub { font-size: 10px; color: #8ab4d4; letter-spacing: 1.5px; text-transform: uppercase; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .save-flash { font-size: 12px; color: #4caf50; font-weight: 700; }
+    .username-chip { font-size: 12px; color: #8ab4d4; background: #1a3a5c; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
+
+    /* ── tabs ── */
+    .tabs { display: flex; background: #161b26; border-bottom: 1px solid #2a2f3e; position: sticky; top: 57px; z-index: 190; }
+    .tab {
+      flex: 1; padding: 13px 8px; background: none; border: none;
+      color: #555; font-size: 13px; font-weight: 700; cursor: pointer;
+      font-family: inherit; letter-spacing: .3px; position: relative;
+      border-bottom: 2px solid transparent; transition: color .2s;
+    }
+    .tab.active { color: #c8a200; border-bottom-color: #c8a200; }
+    .tab-badge {
+      background: #c8a200; color: #000; border-radius: 10px;
+      font-size: 10px; font-weight: 900; padding: 1px 6px; margin-left: 4px;
+    }
+
+    /* ── filters ── */
+    .filters {
+      padding: 12px 16px; background: #161b26;
+      border-bottom: 1px solid #2a2f3e;
+      position: sticky; top: 103px; z-index: 180;
+    }
+    .search-input {
+      width: 100%; background: #0f1117; border: 1px solid #2a2f3e;
+      border-radius: 6px; padding: 9px 12px; color: #e8e8e8;
+      font-size: 13px; font-family: inherit; margin-bottom: 10px;
+      outline: none; transition: border-color .2s;
+    }
+    .search-input:focus { border-color: #c8a200; }
+    .stage-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+    .stage-btn {
+      background: #1e2435; border: 1px solid #2a2f3e; border-radius: 20px;
+      padding: 4px 12px; font-size: 11px; color: #777; cursor: pointer;
+      font-family: inherit; font-weight: 700; transition: all .15s;
+    }
+    .stage-btn.active { color: #fff; }
+
+    /* ── date group ── */
+    .date-header {
+      background: #161b26; padding: 7px 16px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px; font-weight: 700; color: #c8a200;
+      letter-spacing: 1px; text-transform: uppercase;
+      border-bottom: 1px solid #2a2f3e;
+    }
+
+    /* ── match card ── */
+    .match-card { background: #1a1e2d; border-bottom: 1px solid #1e2333; border-left: 3px solid #2d7a2d; }
+    .match-header {
+      display: flex; align-items: center; padding: 10px 14px;
+      gap: 8px; flex-wrap: wrap; cursor: pointer; user-select: none;
+    }
+    .match-header:hover { background: #1e2438; }
+    .match-teams { display: flex; align-items: center; gap: 6px; flex: 1; flex-wrap: wrap; min-width: 0; }
+    .team-chip {
+      border-radius: 4px; padding: 3px 8px; font-size: 12px;
+      font-weight: 700; color: #e8e8e8; white-space: nowrap;
+      font-family: 'Barlow Condensed', sans-serif; letter-spacing: .3px;
+    }
+    .vs-label { font-size: 9px; color: #444; font-weight: 900; letter-spacing: 1px; }
+    .match-meta { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+    .group-tag { background: #1a3a5c; color: #7ab4e4; font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: 700; }
+    .time-tag { color: #666; font-size: 11px; font-weight: 700; }
+    .venue-count { background: #1e2435; color: #888; font-size: 10px; padding: 2px 7px; border-radius: 10px; }
+    .going-tag { background: #1a4a2a; color: #4caf50; font-size: 10px; padding: 2px 7px; border-radius: 3px; font-weight: 700; }
+    .expand-arrow { color: #333; font-size: 10px; margin-left: auto; flex-shrink: 0; }
+    .top-preview { padding: 3px 14px 8px; font-size: 11px; color: #777; border-top: 1px solid #1e2333; }
+    .top-preview strong { color: #c8a200; }
+
+    /* ── venue list ── */
+    .venue-list { padding: 8px 14px 12px; border-top: 1px solid #1e2333; }
+    .no-venues { color: #444; font-size: 12px; text-align: center; padding: 10px 0; }
+    .venue-row {
+      background: #0f1117; border: 1px solid #23283a; border-radius: 6px;
+      padding: 9px 10px; margin-bottom: 7px; display: flex;
+      justify-content: space-between; align-items: flex-start;
+      gap: 8px; position: relative; transition: border-color .15s;
+    }
+    .venue-row.top-venue { border-color: #c8a20055; background: #1a1400; }
+    .top-badge {
+      position: absolute; top: -10px; left: 8px;
+      background: #c8a200; color: #000; font-size: 9px;
+      font-weight: 900; padding: 2px 7px; border-radius: 3px;
+    }
+    .venue-info { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .venue-name { font-size: 13px; font-weight: 700; color: #e8e8e8; }
+    .venue-addr { font-size: 11px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .limit-badge { display: inline-block; background: #1a3a1a; color: #4caf50; font-size: 10px; padding: 2px 6px; border-radius: 3px; }
+    .limit-full { background: #3a1a1a !important; color: #f44 !important; }
+    .attendee-list { font-size: 10px; color: #555; font-style: italic; }
+    .venue-actions { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; flex-shrink: 0; }
+    .vote-btn {
+      background: #1a2035; border: 1px solid #2a3a5e; border-radius: 4px;
+      padding: 5px 11px; font-size: 12px; color: #7ab4e4;
+      cursor: pointer; font-family: inherit; font-weight: 700;
+      min-width: 52px; text-align: center; transition: all .15s;
+    }
+    .vote-btn.voted { background: #1a3a5c; border-color: #c8a200; color: #c8a200; }
+    .vote-btn:hover { border-color: #c8a200; }
+    .going-btn {
+      background: #1a2a1a; border: 1px solid #2a4a2a; border-radius: 4px;
+      padding: 5px 9px; font-size: 11px; color: #4caf50;
+      cursor: pointer; font-family: inherit; font-weight: 700;
+      min-width: 65px; text-align: center; transition: all .15s;
+    }
+    .going-btn.active { background: #1a4a2a; border-color: #4caf50; }
+    .going-btn.full { opacity: .5; cursor: not-allowed; }
+    .add-venue-btn {
+      display: block; width: 100%; background: none;
+      border: 1px dashed #252b3a; border-radius: 6px;
+      padding: 9px; color: #444; cursor: pointer;
+      font-family: inherit; font-weight: 700; font-size: 12px;
+      margin-top: 4px; transition: all .2s;
+    }
+    .add-venue-btn:hover { border-color: #c8a200; color: #c8a200; }
+
+    /* ── plans tab ── */
+    .section-title {
+      padding: 18px 16px 10px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px; font-weight: 900; color: #c8a200; letter-spacing: .5px;
+    }
+    .empty-state { text-align: center; padding: 60px 20px; color: #444; font-size: 14px; line-height: 2; }
+    .empty-icon { font-size: 48px; margin-bottom: 10px; }
+    .plan-card {
+      margin: 8px 16px; background: #1a1e2d;
+      border: 1px solid #2a2f3e; border-radius: 8px; padding: 14px;
+    }
+    .plan-stage {
+      display: inline-block; font-size: 10px; font-weight: 800;
+      padding: 2px 8px; border-radius: 3px; letter-spacing: .5px;
+      margin-bottom: 7px;
+    }
+    .plan-teams { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 900; color: #fff; margin-bottom: 3px; }
+    .plan-date { font-size: 12px; color: #777; margin-bottom: 10px; }
+    .plan-venue { background: #0f1117; border-radius: 6px; padding: 10px 12px; }
+    .plan-venue-name { font-size: 13px; font-weight: 700; color: #c8a200; margin-bottom: 3px; }
+    .plan-venue-addr { font-size: 11px; color: #555; margin-bottom: 4px; }
+    .plan-attend { font-size: 11px; color: #4caf50; }
+    .cancel-plan {
+      display: block; margin-top: 8px; background: none;
+      border: 1px solid #2a2f3e; border-radius: 5px;
+      padding: 6px; color: #666; font-size: 11px;
+      cursor: pointer; font-family: inherit; width: 100%;
+      transition: all .15s;
+    }
+    .cancel-plan:hover { border-color: #f44336; color: #f44336; }
+
+    /* ── leaderboard ── */
+    .leader-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-bottom: 1px solid #1a1e2d;
+      transition: background .15s;
+    }
+    .leader-row:hover { background: #1a1e2d; }
+    .leader-rank { font-size: 20px; min-width: 34px; text-align: center; }
+    .leader-info { flex: 1; }
+    .leader-venue-name { font-size: 14px; font-weight: 800; color: #e8e8e8; }
+    .leader-addr { font-size: 11px; color: #555; }
+    .leader-match { font-size: 11px; color: #7ab4e4; margin-top: 2px; }
+    .leader-attend { font-size: 11px; color: #777; margin-top: 2px; }
+    .leader-voters { font-size: 10px; color: #555; margin-top: 2px; font-style: italic; }
+    .leader-votes {
+      background: #1a3a5c; color: #c8a200; border-radius: 50%;
+      font-size: 16px; font-weight: 900; width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+
+    /* ── modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.8);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; padding: 16px;
+    }
+    .modal {
+      background: #1a1e2d; border: 1px solid #2a2f3e;
+      border-radius: 12px; padding: 22px; width: 100%; max-width: 380px;
+    }
+    .modal-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px; font-weight: 900; color: #c8a200;
+      margin-bottom: 16px; letter-spacing: .5px;
+    }
+    .modal-input {
+      display: block; width: 100%; background: #0f1117;
+      border: 1px solid #2a2f3e; border-radius: 6px;
+      padding: 11px 12px; color: #e8e8e8; font-size: 13px;
+      font-family: inherit; margin-bottom: 10px; outline: none;
+      transition: border-color .2s;
+    }
+    .modal-input:focus { border-color: #c8a200; }
+    .modal-hint { font-size: 11px; color: #555; margin-bottom: 14px; }
+    .modal-btns { display: flex; gap: 8px; }
+    .modal-cancel {
+      flex: 1; background: none; border: 1px solid #2a2f3e;
+      border-radius: 6px; padding: 11px; color: #777;
+      cursor: pointer; font-family: inherit; font-size: 13px;
+      transition: border-color .2s;
+    }
+    .modal-cancel:hover { border-color: #555; }
+    .modal-submit {
+      flex: 2; background: #c8a200; border: none; border-radius: 6px;
+      padding: 11px; color: #000; cursor: pointer;
+      font-family: inherit; font-weight: 900; font-size: 13px;
+      transition: background .2s;
+    }
+    .modal-submit:hover { background: #dbb800; }
+
+    /* ── content padding ── */
+    .content { padding-bottom: 80px; }
+  </style>
+</head>
+<body>
+  <div id="root"><div class="loading">LOADING...</div></div>
+
+  <!-- ══ PASTE YOUR FIREBASE CONFIG HERE ══════════════════════════════════ -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBzuNZO_RLcgs1FOd_6tkncCUmeKYjH174",
+      authDomain: "fifa26-watch-parties.firebaseapp.com",
+      databaseURL: "https://fifa26-watch-parties-default-rtdb.firebaseio.com",
+      projectId: "fifa26-watch-parties",
+      storageBucket: "fifa26-watch-parties.firebasestorage.app",
+      messagingSenderId: "121908729576",
+      appId: "1:121908729576:web:a87f7c6c06e4e340459b5d",
+      measurementId: "G-47CJNZWL36"
+    };
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.firestore();
+  </script>
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    // ── Helpers ─────────────────────────────────────────────────────────────
+    const FLAGS = {
+      "Mexico":"🇲🇽","South Africa":"🇿🇦","South Korea":"🇰🇷","Czechia":"🇨🇿",
+      "Canada":"🇨🇦","Bosnia-Herzegovina":"🇧🇦","Qatar":"🇶🇦","Switzerland":"🇨🇭",
+      "Brazil":"🇧🇷","Morocco":"🇲🇦","Haiti":"🇭🇹","Scotland":"🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+      "USA":"🇺🇸","Paraguay":"🇵🇾","Australia":"🇦🇺","Turkey":"🇹🇷",
+      "Germany":"🇩🇪","Curaçao":"🏝️","Ivory Coast":"🇨🇮","Ecuador":"🇪🇨",
+      "Netherlands":"🇳🇱","Japan":"🇯🇵","Tunisia":"🇹🇳","Sweden":"🇸🇪",
+      "Belgium":"🇧🇪","Egypt":"🇪🇬","Iran":"🇮🇷","New Zealand":"🇳🇿",
+      "Spain":"🇪🇸","Cape Verde":"🇨🇻","Saudi Arabia":"🇸🇦","Uruguay":"🇺🇾",
+      "France":"🇫🇷","Senegal":"🇸🇳","Iraq":"🇮🇶","Norway":"🇳🇴",
+      "Argentina":"🇦🇷","Algeria":"🇩🇿","Austria":"🇦🇹","Jordan":"🇯🇴",
+      "Portugal":"🇵🇹","DR Congo":"🇨🇩","Uzbekistan":"🇺🇿","Colombia":"🇨🇴",
+      "England":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Croatia":"🇭🇷","Ghana":"🇬🇭","Panama":"🇵🇦",
+    };
+    const f = t => FLAGS[t] || "⚽";
+
+    const STAGE_COLORS = {
+      "Group Stage":"#2d7a2d","Round of 32":"#c47d00",
+      "Round of 16":"#a53030","Quarter-Final":"#6b3fa0",
+      "Semi-Final":"#1a5fa8","Third Place":"#555","Final":"#b8860b",
+    };
+
+    // ── Full Schedule (all times CDT = ET − 1h) ──────────────────────────
+    const MATCHES = [
+      // ── June 11 ──────────────────────────────────────────────────────────
+      {id:"m1", date:"Thu Jun 12", time:"2:00 PM", team1:"Mexico", team2:"South Africa", group:"A", stage:"Group Stage", venue:"Mexico City"},
+      {id:"m2", date:"Thu Jun 12", time:"9:00 PM", team1:"South Korea", team2:"Czechia", group:"A", stage:"Group Stage", venue:"Guadalajara"},
+      // ── June 12 ──────────────────────────────────────────────────────────
+      {id:"m3", date:"Fri Jun 12", time:"2:00 PM", team1:"Canada", team2:"Bosnia-Herzegovina", group:"B", stage:"Group Stage", venue:"Toronto"},
+      {id:"m4", date:"Fri Jun 12", time:"8:00 PM", team1:"USA", team2:"Paraguay", group:"D", stage:"Group Stage", venue:"Los Angeles"},
+      // ── June 13 ──────────────────────────────────────────────────────────
+      {id:"m5", date:"Sat Jun 13", time:"2:00 PM", team1:"Qatar", team2:"Switzerland", group:"B", stage:"Group Stage", venue:"San Francisco"},
+      {id:"m6", date:"Sat Jun 13", time:"5:00 PM", team1:"Brazil", team2:"Morocco", group:"C", stage:"Group Stage", venue:"New York / NJ"},
+      {id:"m7", date:"Sat Jun 13", time:"8:00 PM", team1:"Haiti", team2:"Scotland", group:"C", stage:"Group Stage", venue:"Boston"},
+      {id:"m8", date:"Sat Jun 13", time:"11:00 PM", team1:"Australia", team2:"Turkey", group:"D", stage:"Group Stage", venue:"Vancouver"},
+      // ── June 14 ──────────────────────────────────────────────────────────
+      {id:"m9",  date:"Sun Jun 14", time:"12:00 PM", team1:"Germany", team2:"Curaçao", group:"E", stage:"Group Stage", venue:"Houston"},
+      {id:"m10", date:"Sun Jun 14", time:"3:00 PM",  team1:"Netherlands", team2:"Japan", group:"F", stage:"Group Stage", venue:"Dallas"},
+      {id:"m11", date:"Sun Jun 14", time:"6:00 PM",  team1:"Ivory Coast", team2:"Ecuador", group:"E", stage:"Group Stage", venue:"Philadelphia"},
+      {id:"m12", date:"Sun Jun 14", time:"9:00 PM",  team1:"Tunisia", team2:"Sweden", group:"F", stage:"Group Stage", venue:"Monterrey"},
+      // ── June 15 ──────────────────────────────────────────────────────────
+      {id:"m13", date:"Mon Jun 15", time:"11:00 AM", team1:"Spain", team2:"Cape Verde", group:"H", stage:"Group Stage", venue:"Atlanta"},
+      {id:"m14", date:"Mon Jun 15", time:"2:00 PM",  team1:"Belgium", team2:"Egypt", group:"G", stage:"Group Stage", venue:"Seattle"},
+      {id:"m15", date:"Mon Jun 15", time:"5:00 PM",  team1:"Saudi Arabia", team2:"Uruguay", group:"H", stage:"Group Stage", venue:"Miami"},
+      {id:"m16", date:"Mon Jun 15", time:"8:00 PM",  team1:"Iran", team2:"New Zealand", group:"G", stage:"Group Stage", venue:"Los Angeles"},
+      // ── June 16 ──────────────────────────────────────────────────────────
+      {id:"m17", date:"Tue Jun 16", time:"2:00 PM",  team1:"France", team2:"Senegal", group:"I", stage:"Group Stage", venue:"New York / NJ"},
+      {id:"m18", date:"Tue Jun 16", time:"5:00 PM",  team1:"Iraq", team2:"Norway", group:"I", stage:"Group Stage", venue:"Boston"},
+      {id:"m19", date:"Tue Jun 16", time:"8:00 PM",  team1:"Argentina", team2:"Algeria", group:"J", stage:"Group Stage", venue:"Kansas City"},
+      {id:"m20", date:"Tue Jun 16", time:"11:00 PM", team1:"Austria", team2:"Jordan", group:"J", stage:"Group Stage", venue:"San Francisco"},
+      // ── June 17 ──────────────────────────────────────────────────────────
+      {id:"m21", date:"Wed Jun 17", time:"12:00 PM", team1:"Portugal", team2:"DR Congo", group:"K", stage:"Group Stage", venue:"Houston"},
+      {id:"m22", date:"Wed Jun 17", time:"3:00 PM",  team1:"England", team2:"Croatia", group:"L", stage:"Group Stage", venue:"Dallas"},
+      {id:"m23", date:"Wed Jun 17", time:"6:00 PM",  team1:"Ghana", team2:"Panama", group:"L", stage:"Group Stage", venue:"Toronto"},
+      {id:"m24", date:"Wed Jun 17", time:"9:00 PM",  team1:"Uzbekistan", team2:"Colombia", group:"K", stage:"Group Stage", venue:"Mexico City"},
+      // ── June 18 ──────────────────────────────────────────────────────────
+      {id:"m25", date:"Thu Jun 18", time:"11:00 AM", team1:"Czechia", team2:"South Africa", group:"A", stage:"Group Stage", venue:"Atlanta"},
+      {id:"m26", date:"Thu Jun 18", time:"2:00 PM",  team1:"Switzerland", team2:"Bosnia-Herzegovina", group:"B", stage:"Group Stage", venue:"Los Angeles"},
+      {id:"m27", date:"Thu Jun 18", time:"5:00 PM",  team1:"Canada", team2:"Qatar", group:"B", stage:"Group Stage", venue:"Vancouver"},
+      {id:"m28", date:"Thu Jun 18", time:"8:00 PM",  team1:"Mexico", team2:"South Korea", group:"A", stage:"Group Stage", venue:"Guadalajara"},
+      // ── June 19 ──────────────────────────────────────────────────────────
+      {id:"m29", date:"Fri Jun 19", time:"2:00 PM",  team1:"USA", team2:"Australia", group:"D", stage:"Group Stage", venue:"Seattle"},
+      {id:"m30", date:"Fri Jun 19", time:"2:00 PM",  team1:"Scotland", team2:"Morocco", group:"C", stage:"Group Stage", venue:"Boston"},
+      {id:"m31", date:"Fri Jun 19", time:"8:00 PM",  team1:"Brazil", team2:"Haiti", group:"C", stage:"Group Stage", venue:"Philadelphia"},
+      {id:"m32", date:"Fri Jun 19", time:"11:00 PM", team1:"Turkey", team2:"Paraguay", group:"D", stage:"Group Stage", venue:"San Francisco"},
+      // ── June 20 ──────────────────────────────────────────────────────────
+      {id:"m33", date:"Sat Jun 20", time:"12:00 PM", team1:"Netherlands", team2:"Sweden", group:"F", stage:"Group Stage", venue:"Houston"},
+      {id:"m34", date:"Sat Jun 20", time:"3:00 PM",  team1:"Germany", team2:"Ivory Coast", group:"E", stage:"Group Stage", venue:"Toronto"},
+      {id:"m35", date:"Sat Jun 20", time:"7:00 PM",  team1:"Ecuador", team2:"Curaçao", group:"E", stage:"Group Stage", venue:"Kansas City"},
+      {id:"m36", date:"Sat Jun 20", time:"11:00 PM", team1:"Tunisia", team2:"Japan", group:"F", stage:"Group Stage", venue:"Monterrey"},
+      // ── June 21 ──────────────────────────────────────────────────────────
+      {id:"m37", date:"Sun Jun 21", time:"11:00 AM", team1:"Spain", team2:"Saudi Arabia", group:"H", stage:"Group Stage", venue:"Atlanta"},
+      {id:"m38", date:"Sun Jun 21", time:"2:00 PM",  team1:"Belgium", team2:"Iran", group:"G", stage:"Group Stage", venue:"Los Angeles"},
+      {id:"m39", date:"Sun Jun 21", time:"5:00 PM",  team1:"Uruguay", team2:"Cape Verde", group:"H", stage:"Group Stage", venue:"Miami"},
+      {id:"m40", date:"Sun Jun 21", time:"8:00 PM",  team1:"New Zealand", team2:"Egypt", group:"G", stage:"Group Stage", venue:"Vancouver"},
+      // ── June 22 ──────────────────────────────────────────────────────────
+      {id:"m41", date:"Mon Jun 22", time:"12:00 PM", team1:"Argentina", team2:"Austria", group:"J", stage:"Group Stage", venue:"Dallas"},
+      {id:"m42", date:"Mon Jun 22", time:"4:00 PM",  team1:"France", team2:"Iraq", group:"I", stage:"Group Stage", venue:"Philadelphia"},
+      {id:"m43", date:"Mon Jun 22", time:"7:00 PM",  team1:"Norway", team2:"Senegal", group:"I", stage:"Group Stage", venue:"New York / NJ"},
+      {id:"m44", date:"Mon Jun 22", time:"10:00 PM", team1:"Jordan", team2:"Algeria", group:"J", stage:"Group Stage", venue:"San Francisco"},
+      // ── June 23 ──────────────────────────────────────────────────────────
+      {id:"m45", date:"Tue Jun 23", time:"12:00 PM", team1:"Portugal", team2:"Uzbekistan", group:"K", stage:"Group Stage", venue:"Houston"},
+      {id:"m46", date:"Tue Jun 23", time:"3:00 PM",  team1:"England", team2:"Ghana", group:"L", stage:"Group Stage", venue:"Dallas"},
+      {id:"m47", date:"Tue Jun 23", time:"6:00 PM",  team1:"Panama", team2:"Croatia", group:"L", stage:"Group Stage", venue:"Toronto"},
+      {id:"m48", date:"Tue Jun 23", time:"9:00 PM",  team1:"Colombia", team2:"DR Congo", group:"K", stage:"Group Stage", venue:"Mexico City"},
+      // ── June 24 (simultaneous) ────────────────────────────────────────────
+      {id:"m49", date:"Wed Jun 24", time:"2:00 PM",  team1:"Switzerland", team2:"Canada", group:"B", stage:"Group Stage", venue:"Atlanta"},
+      {id:"m50", date:"Wed Jun 24", time:"2:00 PM",  team1:"Bosnia-Herzegovina", team2:"Qatar", group:"B", stage:"Group Stage", venue:"Seattle"},
+      {id:"m51", date:"Wed Jun 24", time:"5:00 PM",  team1:"Scotland", team2:"Brazil", group:"C", stage:"Group Stage", venue:"New York / NJ"},
+      {id:"m52", date:"Wed Jun 24", time:"5:00 PM",  team1:"Morocco", team2:"Haiti", group:"C", stage:"Group Stage", venue:"Boston"},
+      {id:"m53", date:"Wed Jun 24", time:"8:00 PM",  team1:"Czechia", team2:"Mexico", group:"A", stage:"Group Stage", venue:"Kansas City"},
+      {id:"m54", date:"Wed Jun 24", time:"8:00 PM",  team1:"South Africa", team2:"South Korea", group:"A", stage:"Group Stage", venue:"Philadelphia"},
+      // ── June 25 (simultaneous) ────────────────────────────────────────────
+      {id:"m55", date:"Thu Jun 25", time:"3:00 PM",  team1:"Curaçao", team2:"Ivory Coast", group:"E", stage:"Group Stage", venue:"Miami"},
+      {id:"m56", date:"Thu Jun 25", time:"3:00 PM",  team1:"Ecuador", team2:"Germany", group:"E", stage:"Group Stage", venue:"Seattle"},
+      {id:"m57", date:"Thu Jun 25", time:"6:00 PM",  team1:"Japan", team2:"Sweden", group:"F", stage:"Group Stage", venue:"Los Angeles"},
+      {id:"m58", date:"Thu Jun 25", time:"6:00 PM",  team1:"Tunisia", team2:"Netherlands", group:"F", stage:"Group Stage", venue:"Dallas"},
+      {id:"m59", date:"Thu Jun 25", time:"9:00 PM",  team1:"Turkey", team2:"USA", group:"D", stage:"Group Stage", venue:"San Francisco"},
+      {id:"m60", date:"Thu Jun 25", time:"9:00 PM",  team1:"Paraguay", team2:"Australia", group:"D", stage:"Group Stage", venue:"Vancouver"},
+      // ── June 26 (simultaneous) ────────────────────────────────────────────
+      {id:"m61", date:"Fri Jun 26", time:"2:00 PM",  team1:"Norway", team2:"France", group:"I", stage:"Group Stage", venue:"Kansas City"},
+      {id:"m62", date:"Fri Jun 26", time:"2:00 PM",  team1:"Senegal", team2:"Iraq", group:"I", stage:"Group Stage", venue:"Toronto"},
+      {id:"m63", date:"Fri Jun 26", time:"7:00 PM",  team1:"Cape Verde", team2:"Saudi Arabia", group:"H", stage:"Group Stage", venue:"Atlanta"},
+      {id:"m64", date:"Fri Jun 26", time:"7:00 PM",  team1:"Uruguay", team2:"Spain", group:"H", stage:"Group Stage", venue:"Miami"},
+      {id:"m65", date:"Fri Jun 26", time:"10:00 PM", team1:"Egypt", team2:"Iran", group:"G", stage:"Group Stage", venue:"Los Angeles"},
+      {id:"m66", date:"Fri Jun 26", time:"10:00 PM", team1:"New Zealand", team2:"Belgium", group:"G", stage:"Group Stage", venue:"Seattle"},
+      // ── June 27 (simultaneous) ────────────────────────────────────────────
+      {id:"m67", date:"Sat Jun 27", time:"4:00 PM",  team1:"Panama", team2:"England", group:"L", stage:"Group Stage", venue:"New York / NJ"},
+      {id:"m68", date:"Sat Jun 27", time:"4:00 PM",  team1:"Croatia", team2:"Ghana", group:"L", stage:"Group Stage", venue:"Philadelphia"},
+      {id:"m69", date:"Sat Jun 27", time:"6:30 PM",  team1:"Colombia", team2:"Portugal", group:"K", stage:"Group Stage", venue:"Boston"},
+      {id:"m70", date:"Sat Jun 27", time:"6:30 PM",  team1:"DR Congo", team2:"Uzbekistan", group:"K", stage:"Group Stage", venue:"Houston"},
+      {id:"m71", date:"Sat Jun 27", time:"9:00 PM",  team1:"Algeria", team2:"Austria", group:"J", stage:"Group Stage", venue:"Dallas"},
+      {id:"m72", date:"Sat Jun 27", time:"9:00 PM",  team1:"Jordan", team2:"Argentina", group:"J", stage:"Group Stage", venue:"San Francisco"},
+
+      // ── ROUND OF 32 (Jun 28 – Jul 3) ──────────────────────────────────────
+      {id:"r32a", date:"Sun Jun 28", time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"Vancouver"},
+      {id:"r32b", date:"Sun Jun 28", time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"New York / NJ"},
+      {id:"r32c", date:"Mon Jun 29", time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"Houston"},
+      {id:"r32d", date:"Mon Jun 29", time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"Los Angeles"},
+      {id:"r32e", date:"Tue Jun 30", time:"4:00 PM", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"New York / NJ"},
+      {id:"r32f", date:"Tue Jun 30", time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"Mexico City"},
+      {id:"r32g", date:"Wed Jul 1",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"Atlanta"},
+      {id:"r32h", date:"Wed Jul 1",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"Seattle"},
+      {id:"r32i", date:"Thu Jul 2",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"San Francisco"},
+      {id:"r32j", date:"Thu Jul 2",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"Los Angeles"},
+      {id:"r32k", date:"Fri Jul 3",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"Toronto"},
+      {id:"r32l", date:"Fri Jul 3",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"Miami"},
+      {id:"r32m", date:"Sat Jul 4",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"Vancouver"},
+      {id:"r32n", date:"Sat Jul 4",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"Kansas City"},
+      {id:"r32o", date:"Sat Jul 4",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"Monterrey"},
+      {id:"r32p", date:"Sat Jul 4",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 32", venue:"Dallas"},
+
+      // ── ROUND OF 16 (Jul 5 – Jul 8) ──────────────────────────────────────
+      {id:"r16a", date:"Sun Jul 5",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 16", venue:"Houston"},
+      {id:"r16b", date:"Sun Jul 5",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 16", venue:"Guadalajara"},
+      {id:"r16c", date:"Mon Jul 6",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 16", venue:"New York / NJ"},
+      {id:"r16d", date:"Mon Jul 6",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 16", venue:"Seattle"},
+      {id:"r16e", date:"Tue Jul 7",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 16", venue:"Dallas"},
+      {id:"r16f", date:"Tue Jul 7",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 16", venue:"Kansas City"},
+      {id:"r16g", date:"Wed Jul 8",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 16", venue:"Atlanta"},
+      {id:"r16h", date:"Wed Jul 8",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Round of 16", venue:"Los Angeles"},
+
+      // ── QUARTER-FINALS (Jul 9 – Jul 11) ──────────────────────────────────
+      {id:"qfa", date:"Thu Jul 9",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Quarter-Final", venue:"San Francisco"},
+      {id:"qfb", date:"Thu Jul 9",  time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Quarter-Final", venue:"Boston"},
+      {id:"qfc", date:"Fri Jul 10", time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Quarter-Final", venue:"Miami"},
+      {id:"qfd", date:"Sat Jul 11", time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Quarter-Final", venue:"Los Angeles"},
+
+      // ── SEMI-FINALS ───────────────────────────────────────────────────────
+      {id:"sfa", date:"Mon Jul 14", time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Semi-Final", venue:"Dallas"},
+      {id:"sfb", date:"Tue Jul 15", time:"TBD", team1:"TBD", team2:"TBD", group:null, stage:"Semi-Final", venue:"Atlanta"},
+
+      // ── THIRD PLACE & FINAL ───────────────────────────────────────────────
+      {id:"tp",  date:"Fri Jul 18", time:"TBD",      team1:"TBD", team2:"TBD", group:null, stage:"Third Place", venue:"Miami"},
+      {id:"fin", date:"Sun Jul 19", time:"2:00 PM",   team1:"TBD", team2:"TBD", group:null, stage:"Final",       venue:"New York / NJ"},
+    ];
+
+    const STAGES = ["All","Group Stage","Round of 32","Round of 16","Quarter-Final","Semi-Final","Final"];
+
+    // ── UUID helper ───────────────────────────────────────────────────────────
+    function getUID() {
+      let uid = localStorage.getItem("wc26_uid");
+      if (!uid) { uid = "u_" + Math.random().toString(36).slice(2); localStorage.setItem("wc26_uid", uid); }
+      return uid;
+    }
+
+    // ── App ───────────────────────────────────────────────────────────────────
+    function App() {
+      const [userName, setUserName] = useState(() => localStorage.getItem("wc26_name") || "");
+      const [nameSet, setNameSet] = useState(() => !!localStorage.getItem("wc26_name"));
+      const [venues, setVenues] = useState({});       // { matchId: [venueDoc, ...] }
+      const [myPlans, setMyPlans] = useState(() => JSON.parse(localStorage.getItem("wc26_plans") || "{}"));
+      const [tab, setTab] = useState("schedule");
+      const [filterStage, setFilterStage] = useState("All");
+      const [filterTeam, setFilterTeam] = useState("");
+      const [expanded, setExpanded] = useState(null);
+      const [modal, setModal] = useState(null);       // { matchId } or null
+      const [flash, setFlash] = useState("");
+      const [form, setForm] = useState({name:"", address:"", limit:""});
+
+      // ── Flash ────────────────────────────────────────────────────────────
+      const showFlash = msg => { setFlash(msg); setTimeout(() => setFlash(""), 2500); };
+
+      // ── Firebase listener ─────────────────────────────────────────────────
+      useEffect(() => {
+        const unsub = db.collection("wc26_venues")
+          .orderBy("createdAt", "asc")
+          .onSnapshot(snap => {
+            const map = {};
+            snap.forEach(doc => {
+              const d = { id: doc.id, ...doc.data() };
+              if (!map[d.matchId]) map[d.matchId] = [];
+              map[d.matchId].push(d);
+            });
+            setVenues(map);
+          }, err => console.error("Firestore:", err));
+        return () => unsub();
+      }, []);
+
+      // ── Persist plans ─────────────────────────────────────────────────────
+      const savePlans = p => { setMyPlans(p); localStorage.setItem("wc26_plans", JSON.stringify(p)); };
+
+      // ── Set name ─────────────────────────────────────────────────────────
+      const handleSetName = n => {
+        const name = (n || userName).trim();
+        if (!name) return;
+        localStorage.setItem("wc26_name", name);
+        setUserName(name);
+        setNameSet(true);
+      };
+
+      // ── Add venue ─────────────────────────────────────────────────────────
+      const addVenue = async () => {
+        if (!form.name.trim()) return;
+        const matchVenues = venues[modal.matchId] || [];
+        if (matchVenues.some(v => v.name.toLowerCase() === form.name.trim().toLowerCase())) {
+          showFlash("⚠ Venue already listed!"); return;
+        }
+        try {
+          await db.collection("wc26_venues").add({
+            matchId: modal.matchId,
+            name: form.name.trim(),
+            address: form.address.trim(),
+            limit: form.limit ? parseInt(form.limit) : null,
+            votes: [userName],
+            attendees: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          });
+          setModal(null); setForm({name:"", address:"", limit:""});
+          showFlash("✓ Venue added!");
+        } catch(e) { showFlash("⚠ Failed to save. Check Firebase config."); }
+      };
+
+      // ── Vote ─────────────────────────────────────────────────────────────
+      const vote = async (venueId, hasVoted) => {
+        const ref = db.collection("wc26_venues").doc(venueId);
+        await ref.update({
+          votes: hasVoted
+            ? firebase.firestore.FieldValue.arrayRemove(userName)
+            : firebase.firestore.FieldValue.arrayUnion(userName)
+        });
+      };
+
+      // ── Attend ────────────────────────────────────────────────────────────
+      const attend = async (matchId, venueId, isAttending, venue) => {
+        if (!isAttending && venue.limit && (venue.attendees||[]).length >= venue.limit) {
+          showFlash("🚫 Venue is full!"); return;
+        }
+        const ref = db.collection("wc26_venues").doc(venueId);
+        await ref.update({
+          attendees: isAttending
+            ? firebase.firestore.FieldValue.arrayRemove(userName)
+            : firebase.firestore.FieldValue.arrayUnion(userName)
+        });
+        const newPlans = {...myPlans};
+        if (isAttending) delete newPlans[matchId]; else newPlans[matchId] = venueId;
+        savePlans(newPlans);
+      };
+
+      // ── Name gate ─────────────────────────────────────────────────────────
+      if (!nameSet) return <NameGate onSet={handleSetName} val={userName} setVal={setUserName} />;
+
+      // ── Filter ────────────────────────────────────────────────────────────
+      const filtered = MATCHES.filter(m => {
+        if (filterStage !== "All" && m.stage !== filterStage) return false;
+        if (filterTeam) {
+          const q = filterTeam.toLowerCase();
+          if (!m.team1.toLowerCase().includes(q) && !m.team2.toLowerCase().includes(q)) return false;
+        }
+        return true;
+      });
+
+      const byDate = filtered.reduce((a, m) => {
+        if (!a[m.date]) a[m.date] = [];
+        a[m.date].push(m); return a;
+      }, {});
+
+      const planMatches = MATCHES.filter(m => myPlans[m.id]);
+
+      // ── Leaderboard ───────────────────────────────────────────────────────
+      const allVenues = Object.entries(venues).flatMap(([mid, list]) =>
+        list.map(v => ({...v, match: MATCHES.find(m => m.id === mid)}))
+      ).sort((a,b) => (b.votes||[]).length - (a.votes||[]).length);
+
+      return (
+        <div>
+          {/* Header */}
+          <header className="header">
+            <div className="header-left">
+              <span className="header-badge">FIFA</span>
+              <div>
+                <div className="header-title">World Cup 2026</div>
+                <div className="header-sub">Chicago Watch Party</div>
+              </div>
+            </div>
+            <div className="header-right">
+              {flash && <span className="save-flash">{flash}</span>}
+              <span className="username-chip" title="Click to change name" onClick={() => { const n = prompt("Change your name:", userName); if(n && n.trim()) handleSetName(n.trim()); }}>
+                👤 {userName}
+              </span>
+            </div>
+          </header>
+
+          {/* Tabs */}
+          <div className="tabs">
+            {[["schedule","📅 Schedule"],["myplans","📌 My Plans"],["leaderboard","🏅 Top Venues"]].map(([id, label]) => (
+              <button key={id} className={`tab${tab===id?" active":""}`} onClick={() => setTab(id)}>
+                {label}
+                {id==="myplans" && planMatches.length > 0 && <span className="tab-badge">{planMatches.length}</span>}
+              </button>
+            ))}
+          </div>
+
+          {/* ── SCHEDULE ── */}
+          {tab === "schedule" && (
+            <div className="content">
+              <div className="filters">
+                <input className="search-input" placeholder="🔍 Search team or country..." value={filterTeam} onChange={e => setFilterTeam(e.target.value)} />
+                <div className="stage-filters">
+                  {STAGES.map(s => (
+                    <button key={s}
+                      className={`stage-btn${filterStage===s?" active":""}`}
+                      style={filterStage===s ? {background: STAGE_COLORS[s]||"#2d7a2d", borderColor: "transparent"} : {}}
+                      onClick={() => setFilterStage(s)}>
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {Object.entries(byDate).map(([date, matches]) => (
+                <div key={date}>
+                  <div className="date-header">{date}</div>
+                  {matches.map(m => (
+                    <MatchCard key={m.id} match={m}
+                      venues={venues[m.id]||[]}
+                      myPlanVenueId={myPlans[m.id]}
+                      userName={userName}
+                      expanded={expanded === m.id}
+                      onToggle={() => setExpanded(expanded===m.id ? null : m.id)}
+                      onVote={vote}
+                      onAttend={(vid, isAtt, v) => attend(m.id, vid, isAtt, v)}
+                      onAddVenue={() => { setModal({matchId: m.id}); setForm({name:"", address:"", limit:""}); }}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ── MY PLANS ── */}
+          {tab === "myplans" && (
+            <div className="content">
+              <div className="section-title">📌 Your Watch Party Plans</div>
+              {planMatches.length === 0
+                ? <div className="empty-state"><div className="empty-icon">🍺</div>No plans yet!<br/>Browse the schedule and tap "+ Going" at any venue.</div>
+                : planMatches.map(m => {
+                    const vid = myPlans[m.id];
+                    const v = (venues[m.id]||[]).find(x => x.id === vid);
+                    return (
+                      <div key={m.id} className="plan-card">
+                        <span className="plan-stage" style={{background:(STAGE_COLORS[m.stage]||"#2d7a2d")+"33", color:STAGE_COLORS[m.stage]||"#2d7a2d"}}>
+                          {m.stage}
+                        </span>
+                        <div className="plan-teams">{f(m.team1)} {m.team1} <span style={{color:"#444",fontWeight:400}}>vs</span> {f(m.team2)} {m.team2}</div>
+                        <div className="plan-date">{m.date} · {m.time} CDT · {m.venue}</div>
+                        {v
+                          ? <div className="plan-venue">
+                              <div className="plan-venue-name">📍 {v.name}</div>
+                              {v.address && <div className="plan-venue-addr">{v.address}</div>}
+                              <div className="plan-attend">👥 {(v.attendees||[]).length}{v.limit?`/${v.limit}`:""} attending</div>
+                            </div>
+                          : <div style={{color:"#555",fontSize:12}}>Venue removed</div>
+                        }
+                        <button className="cancel-plan" onClick={() => { attend(m.id, vid, true, v||{}); }}>✕ Cancel plan</button>
+                      </div>
+                    );
+                  })
+              }
+            </div>
+          )}
+
+          {/* ── LEADERBOARD ── */}
+          {tab === "leaderboard" && (
+            <div className="content">
+              <div className="section-title">🏅 Top Voted Venues</div>
+              {allVenues.length === 0
+                ? <div className="empty-state"><div className="empty-icon">🗳️</div>No venues suggested yet.<br/>Be the first to add one!</div>
+                : allVenues.slice(0,30).map((v, i) => (
+                    <div key={v.id} className="leader-row">
+                      <div className="leader-rank">{i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${i+1}`}</div>
+                      <div className="leader-info">
+                        <div className="leader-venue-name">{v.name}</div>
+                        {v.address && <div className="leader-addr">{v.address}</div>}
+                        {v.match && <div className="leader-match">{f(v.match.team1)}{v.match.team1} vs {f(v.match.team2)}{v.match.team2} · {v.match.date} {v.match.time} CDT</div>}
+                        <div className="leader-attend">👥 {(v.attendees||[]).length}{v.limit?`/${v.limit}`:""} attending</div>
+                        {(v.votes||[]).length > 0 && <div className="leader-voters">Voted: {(v.votes||[]).join(", ")}</div>}
+                      </div>
+                      <div className="leader-votes">{(v.votes||[]).length}</div>
+                    </div>
+                  ))
+              }
+            </div>
+          )}
+
+          {/* ── ADD VENUE MODAL ── */}
+          {modal && (
+            <div className="modal-overlay" onClick={() => setModal(null)}>
+              <div className="modal" onClick={e => e.stopPropagation()}>
+                <div className="modal-title">📍 Suggest a Venue</div>
+                <input className="modal-input" placeholder="Bar / venue name *" autoFocus value={form.name} onChange={e => setForm({...form, name:e.target.value})} onKeyDown={e => e.key==="Enter" && addVenue()} />
+                <input className="modal-input" placeholder="Address (optional)" value={form.address} onChange={e => setForm({...form, address:e.target.value})} />
+                <input className="modal-input" placeholder="Person limit (optional)" type="number" min="1" value={form.limit} onChange={e => setForm({...form, limit:e.target.value})} />
+                <p className="modal-hint">Your vote will automatically be added when you suggest a venue.</p>
+                <div className="modal-btns">
+                  <button className="modal-cancel" onClick={() => setModal(null)}>Cancel</button>
+                  <button className="modal-submit" onClick={addVenue}>Add Venue</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ── NameGate ──────────────────────────────────────────────────────────────
+    function NameGate({onSet, val, setVal}) {
+      return (
+        <div className="gate">
+          <div className="gate-card">
+            <div className="gate-trophy">🏆</div>
+            <h1 className="gate-title">FIFA World Cup 2026</h1>
+            <p className="gate-sub">Chicago Watch Party Tracker</p>
+            <p className="gate-hint">Enter your name so your friends know who's going where</p>
+            <input className="gate-input" placeholder="Your name..." value={val} autoFocus
+              onChange={e => setVal(e.target.value)}
+              onKeyDown={e => e.key==="Enter" && onSet()} />
+            <button className="gate-btn" onClick={() => onSet()}>Let's Go →</button>
+            <button className="gate-btn-ghost" onClick={() => onSet("Anonymous")}>Continue as Guest</button>
+          </div>
+        </div>
+      );
+    }
+
+    // ── MatchCard ─────────────────────────────────────────────────────────────
+    function MatchCard({match, venues, myPlanVenueId, userName, expanded, onToggle, onVote, onAttend, onAddVenue}) {
+      const sc = STAGE_COLORS[match.stage] || "#2d7a2d";
+      const sorted = [...venues].sort((a,b) => (b.votes||[]).length - (a.votes||[]).length);
+      const top = sorted[0];
+      const isGoingAny = venues.some(v => (v.attendees||[]).includes(userName));
+
+      return (
+        <div className="match-card" style={{borderLeftColor: sc}}>
+          <div className="match-header" onClick={onToggle}>
+            <div className="match-teams">
+              <span className="team-chip" style={{background:sc+"22", border:`1px solid ${sc}44`}}>
+                {f(match.team1)} {match.team1}
+              </span>
+              <span className="vs-label">VS</span>
+              <span className="team-chip" style={{background:sc+"22", border:`1px solid ${sc}44`}}>
+                {f(match.team2)} {match.team2}
+              </span>
+            </div>
+            <div className="match-meta">
+              {match.group && <span className="group-tag">Grp {match.group}</span>}
+              <span className="time-tag">{match.time} CDT</span>
+              {venues.length > 0 && <span className="venue-count">📍{venues.length}</span>}
+              {isGoingAny && <span className="going-tag">✓ Going</span>}
+            </div>
+            <span className="expand-arrow">{expanded ? "▲" : "▼"}</span>
+          </div>
+
+          {!expanded && top && (
+            <div className="top-preview">
+              🏆 Top pick: <strong>{top.name}</strong> · {(top.votes||[]).length} vote{(top.votes||[]).length!==1?"s":""} · {(top.attendees||[]).length}{top.limit?`/${top.limit}`:""} going
+            </div>
+          )}
+
+          {expanded && (
+            <div className="venue-list">
+              {sorted.length === 0 && <div className="no-venues">No venues suggested yet — add one below!</div>}
+              {sorted.map((v, i) => {
+                const hasVoted = (v.votes||[]).includes(userName);
+                const isAtt = (v.attendees||[]).includes(userName);
+                const full = v.limit && (v.attendees||[]).length >= v.limit && !isAtt;
+                return (
+                  <div key={v.id} className={`venue-row${i===0&&sorted.length>1?" top-venue":""}`}>
+                    {i===0 && sorted.length>1 && <div className="top-badge">🏆 Top Pick</div>}
+                    <div className="venue-info">
+                      <span className="venue-name">{v.name}</span>
+                      {v.address && <span className="venue-addr">{v.address}</span>}
+                      <span className={`limit-badge${full?" limit-full":""}`}>
+                        {full ? "🚫 Full" : `👥 ${(v.attendees||[]).length}${v.limit?`/${v.limit}`:""} going`}
+                      </span>
+                      {(v.attendees||[]).length > 0 && (
+                        <span className="attendee-list">
+                          {(v.attendees||[]).slice(0,6).join(", ")}{(v.attendees||[]).length>6?` +${(v.attendees||[]).length-6}`:""}
+                        </span>
+                      )}
+                    </div>
+                    <div className="venue-actions">
+                      <button className={`vote-btn${hasVoted?" voted":""}`} onClick={() => onVote(v.id, hasVoted)}>
+                        {hasVoted?"★":"☆"} {(v.votes||[]).length}
+                      </button>
+                      <button className={`going-btn${isAtt?" active":""}${full?" full":""}`}
+                        onClick={() => !full && onAttend(v.id, isAtt, v)}>
+                        {isAtt ? "✓ Going" : full ? "Full" : "+ Going"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+              <button className="add-venue-btn" onClick={onAddVenue}>+ Suggest a Venue</button>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ── Mount ─────────────────────────────────────────────────────────────────
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
