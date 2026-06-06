@@ -53,6 +53,7 @@
     .gate-title { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; color: #fff; letter-spacing: 1px; }
     .gate-sub { font-size: 12px; color: #7ab4e4; letter-spacing: 2px; margin: 4px 0 28px; text-transform: uppercase; }
     .gate-hint { font-size: 13px; color: #666; margin-bottom: 14px; }
+    .gate-error { font-size: 12px; color: #f44336; margin-bottom: 10px; min-height: 18px; }
     .gate-input {
       display: block; width: 100%; background: #0f1117;
       border: 1px solid #2a3a5e; border-radius: 8px;
@@ -61,6 +62,7 @@
       text-align: center; transition: border-color .2s;
     }
     .gate-input:focus { border-color: #c8a200; }
+    .gate-input.error { border-color: #f44336; }
     .gate-btn {
       display: block; width: 100%; background: #c8a200;
       border: none; border-radius: 8px; padding: 13px;
@@ -76,6 +78,21 @@
       transition: border-color .2s;
     }
     .gate-btn-ghost:hover { border-color: #555; color: #999; }
+    .gate-how {
+      margin-top: 24px; border-top: 1px solid #2a2f3e;
+      padding-top: 18px; text-align: left;
+    }
+    .gate-how-title {
+      font-size: 11px; font-weight: 700; color: #c8a200;
+      letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .gate-how-step {
+      display: flex; gap: 10px; align-items: flex-start;
+      margin-bottom: 10px; font-size: 12px; color: #888; line-height: 1.5;
+    }
+    .gate-how-step strong { color: #e8e8e8; }
+    .gate-pin-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .gate-pin-row .gate-input { margin-bottom: 0; letter-spacing: 6px; font-size: 18px; font-weight: 700; }
 
     /* ── header ── */
     .header {
@@ -93,7 +110,8 @@
     .header-sub { font-size: 10px; color: #8ab4d4; letter-spacing: 1.5px; text-transform: uppercase; }
     .header-right { display: flex; align-items: center; gap: 10px; }
     .save-flash { font-size: 12px; color: #4caf50; font-weight: 700; }
-    .username-chip { font-size: 12px; color: #8ab4d4; background: #1a3a5c; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
+    .username-chip { font-size: 12px; color: #8ab4d4; background: #1a3a5c; padding: 5px 12px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .username-pin { font-size: 10px; color: #c8a200; background: #0f1117; padding: 2px 6px; border-radius: 10px; letter-spacing: 1px; font-weight: 700; }
 
     /* ── tabs ── */
     .tabs { display: flex; background: #161b26; border-bottom: 1px solid #2a2f3e; position: sticky; top: 57px; z-index: 190; }
@@ -208,6 +226,13 @@
       margin-top: 4px; transition: all .2s;
     }
     .add-venue-btn:hover { border-color: #c8a200; color: #c8a200; }
+    .delete-venue-btn {
+      background: none; border: 1px solid #3a1a1a; border-radius: 4px;
+      padding: 4px 8px; font-size: 10px; color: #844;
+      cursor: pointer; font-family: inherit; font-weight: 700;
+      transition: all .15s; min-width: 52px; text-align: center;
+    }
+    .delete-venue-btn:hover { border-color: #f44336; color: #f44336; background: #1a0808; }
 
     /* ── plans tab ── */
     .section-title {
@@ -300,6 +325,29 @@
       transition: background .2s;
     }
     .modal-submit:hover { background: #dbb800; }
+
+
+    /* ── static how-to ── */
+    .howto-static {
+      background: #131722; border-bottom: 2px solid #c8a20033;
+      padding: 18px 16px 20px;
+    }
+    .howto-static-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px; font-weight: 900; color: #c8a200;
+      letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px;
+    }
+    .howto-static-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;
+    }
+    @media (max-width: 600px) { .howto-static-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 380px) { .howto-static-grid { grid-template-columns: 1fr; } }
+    .howto-static-step {
+      display: flex; gap: 9px; align-items: flex-start;
+      font-size: 12px; color: #888; line-height: 1.5;
+    }
+    .howto-static-step strong { color: #e8e8e8; display: block; margin-bottom: 2px; }
+    .howto-static-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 
     /* ── content padding ── */
     .content { padding-bottom: 80px; }
@@ -488,32 +536,33 @@
 
     const STAGES = ["All","Group Stage","Round of 32","Round of 16","Quarter-Final","Semi-Final","Final"];
 
-    // ── UUID helper ───────────────────────────────────────────────────────────
-    function getUID() {
-      let uid = localStorage.getItem("wc26_uid");
-      if (!uid) { uid = "u_" + Math.random().toString(36).slice(2); localStorage.setItem("wc26_uid", uid); }
-      return uid;
-    }
+    const SITE_PASSWORD = "chicago2026";
 
     // ── App ───────────────────────────────────────────────────────────────────
     function App() {
-      const [userName, setUserName] = useState(() => localStorage.getItem("wc26_name") || "");
+      // ── Gate state ────────────────────────────────────────────────────────
+      const [passOk, setPassOk] = useState(() => sessionStorage.getItem("wc26_pass") === "1");
       const [nameSet, setNameSet] = useState(() => !!localStorage.getItem("wc26_name"));
-      const [venues, setVenues] = useState({});       // { matchId: [venueDoc, ...] }
-      const [myPlans, setMyPlans] = useState(() => JSON.parse(localStorage.getItem("wc26_plans") || "{}"));
+      const [userName, setUserName] = useState(() => localStorage.getItem("wc26_name") || "");
+      // userKey = "name:pin" — stable identity used as Firestore doc ID for plans
+      const [userKey, setUserKey] = useState(() => localStorage.getItem("wc26_key") || "");
+
+      const [venues, setVenues] = useState({});
+      const [myPlans, setMyPlans] = useState({});  // loaded from Firestore
       const [tab, setTab] = useState("schedule");
       const [filterStage, setFilterStage] = useState("All");
       const [filterTeam, setFilterTeam] = useState("");
       const [expanded, setExpanded] = useState(null);
-      const [modal, setModal] = useState(null);       // { matchId } or null
+      const [modal, setModal] = useState(null);
       const [flash, setFlash] = useState("");
       const [form, setForm] = useState({name:"", address:"", limit:""});
 
       // ── Flash ────────────────────────────────────────────────────────────
       const showFlash = msg => { setFlash(msg); setTimeout(() => setFlash(""), 2500); };
 
-      // ── Firebase listener ─────────────────────────────────────────────────
+      // ── Firebase: venues listener ─────────────────────────────────────────
       useEffect(() => {
+        if (!passOk || !nameSet) return;
         const unsub = db.collection("wc26_venues")
           .orderBy("createdAt", "asc")
           .onSnapshot(snap => {
@@ -524,19 +573,36 @@
               map[d.matchId].push(d);
             });
             setVenues(map);
-          }, err => console.error("Firestore:", err));
+          }, err => console.error("Firestore venues:", err));
         return () => unsub();
-      }, []);
+      }, [passOk, nameSet]);
 
-      // ── Persist plans ─────────────────────────────────────────────────────
-      const savePlans = p => { setMyPlans(p); localStorage.setItem("wc26_plans", JSON.stringify(p)); };
+      // ── Firebase: plans listener (real-time, syncs across devices) ────────
+      useEffect(() => {
+        if (!passOk || !nameSet || !userKey) return;
+        const unsub = db.collection("wc26_plans").doc(userKey)
+          .onSnapshot(snap => {
+            setMyPlans(snap.exists ? (snap.data().plans || {}) : {});
+          }, err => console.error("Firestore plans:", err));
+        return () => unsub();
+      }, [passOk, nameSet, userKey]);
 
-      // ── Set name ─────────────────────────────────────────────────────────
-      const handleSetName = n => {
-        const name = (n || userName).trim();
-        if (!name) return;
-        localStorage.setItem("wc26_name", name);
-        setUserName(name);
+      // ── Persist plans to Firestore ────────────────────────────────────────
+      const savePlans = async p => {
+        setMyPlans(p);
+        try {
+          await db.collection("wc26_plans").doc(userKey).set({ plans: p, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        } catch(e) { console.error("Save plans:", e); }
+      };
+
+      // ── Set name + PIN ────────────────────────────────────────────────────
+      const handleSetName = (name, pin) => {
+        if (!name || !pin) return;
+        const key = name.trim() + ":" + pin.trim();
+        localStorage.setItem("wc26_name", name.trim());
+        localStorage.setItem("wc26_key", key);
+        setUserName(name.trim());
+        setUserKey(key);
         setNameSet(true);
       };
 
@@ -555,11 +621,23 @@
             limit: form.limit ? parseInt(form.limit) : null,
             votes: [userName],
             attendees: [],
+            createdBy: userKey,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           });
           setModal(null); setForm({name:"", address:"", limit:""});
           showFlash("✓ Venue added!");
         } catch(e) { showFlash("⚠ Failed to save. Check Firebase config."); }
+      };
+
+      // ── Delete venue ──────────────────────────────────────────────────────
+      const deleteVenue = async (venueId, matchId) => {
+        if (!window.confirm("Delete this venue? This cannot be undone.")) return;
+        try {
+          await db.collection("wc26_venues").doc(venueId).delete();
+          const newPlans = {...myPlans};
+          if (newPlans[matchId] === venueId) { delete newPlans[matchId]; savePlans(newPlans); }
+          showFlash("🗑 Venue deleted.");
+        } catch(e) { showFlash("⚠ Could not delete venue."); }
       };
 
       // ── Vote ─────────────────────────────────────────────────────────────
@@ -588,8 +666,9 @@
         savePlans(newPlans);
       };
 
-      // ── Name gate ─────────────────────────────────────────────────────────
-      if (!nameSet) return <NameGate onSet={handleSetName} val={userName} setVal={setUserName} />;
+      // ── Gates ─────────────────────────────────────────────────────────────
+      if (!passOk) return <PassGate onPass={() => { sessionStorage.setItem("wc26_pass","1"); setPassOk(true); }} />;
+      if (!nameSet) return <NameGate onSet={handleSetName} />;
 
       // ── Filter ────────────────────────────────────────────────────────────
       const filtered = MATCHES.filter(m => {
@@ -626,11 +705,24 @@
             </div>
             <div className="header-right">
               {flash && <span className="save-flash">{flash}</span>}
-              <span className="username-chip" title="Click to change name" onClick={() => { const n = prompt("Change your name:", userName); if(n && n.trim()) handleSetName(n.trim()); }}>
+              <span className="username-chip" title="Logged in as">
                 👤 {userName}
               </span>
             </div>
           </header>
+
+          {/* ── HOW TO USE ── */}
+          <div className="howto-static">
+            <div className="howto-static-title">How to Use This App</div>
+            <div className="howto-static-grid">
+              <div className="howto-static-step"><span className="howto-static-icon">📅</span><div><strong>Browse the schedule</strong><br/>Search by country or filter by round to find matches you want to watch.</div></div>
+              <div className="howto-static-step"><span className="howto-static-icon">📍</span><div><strong>Suggest a venue</strong><br/>Tap any match to expand it, then "+ Suggest a Venue" to add a bar or spot.</div></div>
+              <div className="howto-static-step"><span className="howto-static-icon">★</span><div><strong>Vote for favorites</strong><br/>Star any venue to upvote it and help the group decide where to watch.</div></div>
+              <div className="howto-static-step"><span className="howto-static-icon">✓</span><div><strong>Mark yourself going</strong><br/>Hit "+ Going" to RSVP. Your spot is tracked under the My Plans tab.</div></div>
+              <div className="howto-static-step"><span className="howto-static-icon">🏅</span><div><strong>Top Venues tab</strong><br/>See which bars are winning the most votes across all matches.</div></div>
+              <div className="howto-static-step"><span className="howto-static-icon">🔑</span><div><strong>Your name + PIN</strong><br/>Use the same name and PIN on any device to restore all your past choices.</div></div>
+            </div>
+          </div>
 
           {/* Tabs */}
           <div className="tabs">
@@ -667,10 +759,12 @@
                       venues={venues[m.id]||[]}
                       myPlanVenueId={myPlans[m.id]}
                       userName={userName}
+                      userKey={userKey}
                       expanded={expanded === m.id}
                       onToggle={() => setExpanded(expanded===m.id ? null : m.id)}
                       onVote={vote}
                       onAttend={(vid, isAtt, v) => attend(m.id, vid, isAtt, v)}
+                      onDelete={(vid) => deleteVenue(vid, m.id)}
                       onAddVenue={() => { setModal({matchId: m.id}); setForm({name:"", address:"", limit:""}); }}
                     />
                   ))}
@@ -754,27 +848,97 @@
       );
     }
 
-    // ── NameGate ──────────────────────────────────────────────────────────────
-    function NameGate({onSet, val, setVal}) {
+
+    // ── PassGate — site password screen ──────────────────────────────────────
+    function PassGate({onPass}) {
+      const [pw, setPw] = useState("");
+      const [err, setErr] = useState("");
+      const [show, setShow] = useState(false);
+      const submit = () => {
+        if (pw.trim() === SITE_PASSWORD) { onPass(); }
+        else { setErr("Wrong password. Try again."); setPw(""); }
+      };
+      return (
+        <div className="gate">
+          <div className="gate-card" style={{maxWidth:400}}>
+            <div className="gate-trophy">🏆</div>
+            <h1 className="gate-title">FIFA World Cup 2026</h1>
+            <p className="gate-sub">Chicago Watch Party Tracker</p>
+            <p className="gate-hint">Enter the site password to continue</p>
+            <div style={{position:"relative"}}>
+              <input className={`gate-input${err?" error":""}`} placeholder="Password..." type={show?"text":"password"} value={pw} autoFocus
+                style={{paddingRight:"44px"}}
+                onChange={e => { setPw(e.target.value); setErr(""); }}
+                onKeyDown={e => e.key==="Enter" && submit()} />
+              <button onClick={() => setShow(s => !s)}
+                style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:"#666",fontSize:"16px",padding:"0",lineHeight:1}}
+                tabIndex={-1} type="button">
+                {show ? "🙈" : "👁"}
+              </button>
+            </div>
+            <div className="gate-error">{err}</div>
+            <button className="gate-btn" onClick={submit}>Enter →</button>
+            <div className="gate-how">
+              <div className="gate-how-title">How it works</div>
+              <div className="gate-how-step"><span>🔑</span><span><strong>Password →</strong> enter the shared group password to access the tracker.</span></div>
+              <div className="gate-how-step"><span>👤</span><span><strong>Name + PIN →</strong> pick a name and 4-digit PIN. Use the same combo on any device to keep your plans.</span></div>
+              <div className="gate-how-step"><span>📍</span><span><strong>Suggest a venue</strong> — open any match and add a bar or spot you'd like to watch at.</span></div>
+              <div className="gate-how-step"><span>★</span><span><strong>Vote &amp; RSVP</strong> — star your favorite venues and hit "+ Going" to lock in your spot.</span></div>
+              <div className="gate-how-step"><span>📌</span><span><strong>My Plans tab</strong> — see all your RSVPs in one place, across every match.</span></div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── NameGate — name + PIN screen ──────────────────────────────────────────
+    function NameGate({onSet}) {
+      const [name, setName] = useState("");
+      const [pin, setPin] = useState("");
+      const [showPin, setShowPin] = useState(false);
+      const [err, setErr] = useState("");
+      const submit = () => {
+        if (!name.trim()) { setErr("Please enter your name."); return; }
+        if (!/^\d{4}$/.test(pin.trim())) { setErr("PIN must be exactly 4 digits."); return; }
+        onSet(name.trim(), pin.trim());
+      };
       return (
         <div className="gate">
           <div className="gate-card">
             <div className="gate-trophy">🏆</div>
             <h1 className="gate-title">FIFA World Cup 2026</h1>
             <p className="gate-sub">Chicago Watch Party Tracker</p>
-            <p className="gate-hint">Enter your name so your friends know who's going where</p>
-            <input className="gate-input" placeholder="Your name..." value={val} autoFocus
-              onChange={e => setVal(e.target.value)}
-              onKeyDown={e => e.key==="Enter" && onSet()} />
-            <button className="gate-btn" onClick={() => onSet()}>Let's Go →</button>
-            <button className="gate-btn-ghost" onClick={() => onSet("Anonymous")}>Continue as Guest</button>
+            <p className="gate-hint">Enter your name and a 4-digit PIN — use the same combo on any device to keep your plans</p>
+            <input className="gate-input" placeholder="Your name..." value={name} autoFocus
+              onChange={e => { setName(e.target.value); setErr(""); }}
+              onKeyDown={e => e.key==="Enter" && submit()} />
+            <div style={{position:"relative"}}>
+              <input className="gate-input" placeholder="4-digit PIN (e.g. 1234)" type={showPin?"text":"password"}
+                inputMode="numeric" maxLength="4" value={pin} style={{paddingRight:"44px",marginBottom:0}}
+                onChange={e => { setPin(e.target.value.replace(/\D/g,"").slice(0,4)); setErr(""); }}
+                onKeyDown={e => e.key==="Enter" && submit()} />
+              <button onClick={() => setShowPin(s => !s)}
+                style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:"#666",fontSize:"16px",padding:"0",lineHeight:1}}
+                tabIndex={-1} type="button">
+                {showPin ? "🙈" : "👁"}
+              </button>
+            </div>
+            <div className="gate-error">{err}</div>
+            <button className="gate-btn" onClick={submit}>Let's Go →</button>
+            <div className="gate-how">
+              <div className="gate-how-title">How it works</div>
+              <div className="gate-how-step"><span>🔑</span><span><strong>Name + PIN</strong> — use the same name and PIN on any device to keep your identity and plans.</span></div>
+              <div className="gate-how-step"><span>📍</span><span><strong>Suggest a venue</strong> — tap any match and add a bar or spot you'd like to watch at.</span></div>
+              <div className="gate-how-step"><span>★</span><span><strong>Vote for favorites</strong> — tap the star to upvote and help the group decide where to go.</span></div>
+              <div className="gate-how-step"><span>✓</span><span><strong>Mark yourself going</strong> — hit "+ Going" to lock in your spot. See your plans in the My Plans tab.</span></div>
+            </div>
           </div>
         </div>
       );
     }
 
     // ── MatchCard ─────────────────────────────────────────────────────────────
-    function MatchCard({match, venues, myPlanVenueId, userName, expanded, onToggle, onVote, onAttend, onAddVenue}) {
+    function MatchCard({match, venues, myPlanVenueId, userName, userKey, expanded, onToggle, onVote, onAttend, onDelete, onAddVenue}) {
       const sc = STAGE_COLORS[match.stage] || "#2d7a2d";
       const sorted = [...venues].sort((a,b) => (b.votes||[]).length - (a.votes||[]).length);
       const top = sorted[0];
@@ -814,6 +978,7 @@
                 const hasVoted = (v.votes||[]).includes(userName);
                 const isAtt = (v.attendees||[]).includes(userName);
                 const full = v.limit && (v.attendees||[]).length >= v.limit && !isAtt;
+                const isOwner = userKey && v.createdBy === userKey;
                 return (
                   <div key={v.id} className={`venue-row${i===0&&sorted.length>1?" top-venue":""}`}>
                     {i===0 && sorted.length>1 && <div className="top-badge">🏆 Top Pick</div>}
@@ -837,6 +1002,9 @@
                         onClick={() => !full && onAttend(v.id, isAtt, v)}>
                         {isAtt ? "✓ Going" : full ? "Full" : "+ Going"}
                       </button>
+                      {isOwner && (
+                        <button className="delete-venue-btn" onClick={() => onDelete(v.id)}>🗑 Delete</button>
+                      )}
                     </div>
                   </div>
                 );
