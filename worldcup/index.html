@@ -332,6 +332,16 @@
     .modal-submit { flex: 2; background: #c8a200; border: none; border-radius: 6px; padding: 11px; color: #000; cursor: pointer; font-family: inherit; font-weight: 900; font-size: 13px; transition: background .2s; }
     .modal-submit:hover { background: #dbb800; }
 
+    /* ── leaderboard subtabs ── */
+    .subtabs { display: flex; gap: 8px; padding: 12px 16px 4px; }
+    .subtab {
+      background: #1e2435; border: 1px solid #2a2f3e; border-radius: 20px;
+      padding: 6px 16px; font-size: 12px; font-weight: 700; color: #777;
+      cursor: pointer; font-family: inherit; transition: all .15s;
+    }
+    .subtab.active { background: #c8a200; border-color: #c8a200; color: #000; }
+    .subtab:hover:not(.active) { border-color: #555; color: #aaa; }
+
     /* ── content padding ── */
     .content { padding-bottom: 80px; }
   </style>
@@ -522,6 +532,7 @@
       const [venues,   setVenues]   = useState({});
       const [nameMap,  setNameMap]  = useState({});
       const [tab,      setTab]      = useState("schedule");
+      const [leaderSub, setLeaderSub] = useState("bymatch"); // "bymatch" | "vibes"
       const [filterStage, setFilterStage] = useState("All");
       const [filterTeam,  setFilterTeam]  = useState("");
       const [expanded, setExpanded] = useState(null);
@@ -756,23 +767,60 @@
 
           {tab === "leaderboard" && (
             <div className="content">
-              <div className="section-title">🏅 Top Voted Venues</div>
-              {allVenues.length === 0
-                ? <div className="empty-state"><div className="empty-icon">🗳️</div>No venues suggested yet.<br/>Be the first to add one!</div>
-                : allVenues.slice(0,30).map((v, i) => (
-                    <div key={v.id} className="leader-row">
-                      <div className="leader-rank">{i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${i+1}`}</div>
-                      <div className="leader-info">
-                        <div className="leader-venue-name">{v.name}</div>
-                        {v.address && <div className="leader-addr">{v.address}</div>}
-                        {v.match && <div className="leader-match">{f(v.match.team1)} {v.match.team1} vs {f(v.match.team2)} {v.match.team2} · {v.match.date} {v.match.time} CDT</div>}
-                        <div className="leader-attend">👥 {(v.attendees||[]).length}{v.limit?`/${v.limit}`:""} attending</div>
-                        {(v.votes||[]).length > 0 && <div className="leader-voters">Voted: {(v.votes||[]).map(resolveName).join(", ")}</div>}
+              <div className="section-title">🏅 Top Venues</div>
+
+              {/* Subtabs */}
+              <div className="subtabs">
+                <button className={`subtab${leaderSub==="bymatch"?" active":""}`} onClick={() => setLeaderSub("bymatch")}>By Match</button>
+                <button className={`subtab${leaderSub==="vibes"?" active":""}`} onClick={() => setLeaderSub("vibes")}>✨ Vibes Only</button>
+              </div>
+
+              {leaderSub === "bymatch" && (
+                allVenues.length === 0
+                  ? <div className="empty-state"><div className="empty-icon">🗳️</div>No venues suggested yet.<br/>Be the first to add one!</div>
+                  : allVenues.slice(0,30).map((v, i) => (
+                      <div key={v.id} className="leader-row">
+                        <div className="leader-rank">{i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${i+1}`}</div>
+                        <div className="leader-info">
+                          <div className="leader-venue-name">{v.name}</div>
+                          {v.address && <div className="leader-addr">{v.address}</div>}
+                          {v.match && <div className="leader-match">{v.match.team1} vs {v.match.team2} · {v.match.date} {v.match.time} CDT</div>}
+                          <div className="leader-attend">👥 {(v.attendees||[]).length}{v.limit?`/${v.limit}`:""} attending</div>
+                          {(v.votes||[]).length > 0 && <div className="leader-voters">Voted: {(v.votes||[]).map(resolveName).join(", ")}</div>}
+                        </div>
+                        <div className="leader-votes">{(v.votes||[]).length}</div>
                       </div>
-                      <div className="leader-votes">{(v.votes||[]).length}</div>
-                    </div>
-                  ))
-              }
+                    ))
+              )}
+
+              {leaderSub === "vibes" && (() => {
+                // Collapse all venues by name (case-insensitive), summing votes & attendees
+                const vibeMap = {};
+                allVenues.forEach(v => {
+                  const key = v.name.trim().toLowerCase();
+                  if (!vibeMap[key]) {
+                    vibeMap[key] = { name: v.name, address: v.address || "", totalVotes: 0, totalAttending: 0, voters: new Set() };
+                  }
+                  vibeMap[key].totalVotes += (v.votes||[]).length;
+                  vibeMap[key].totalAttending += (v.attendees||[]).length;
+                  (v.votes||[]).forEach(uid => vibeMap[key].voters.add(uid));
+                });
+                const vibes = Object.values(vibeMap).sort((a,b) => b.totalVotes - a.totalVotes);
+                return vibes.length === 0
+                  ? <div className="empty-state"><div className="empty-icon">✨</div>No venues yet.<br/>Be the first to suggest one!</div>
+                  : vibes.slice(0,30).map((v, i) => (
+                      <div key={v.name} className="leader-row">
+                        <div className="leader-rank">{i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${i+1}`}</div>
+                        <div className="leader-info">
+                          <div className="leader-venue-name">{v.name}</div>
+                          {v.address && <div className="leader-addr">{v.address}</div>}
+                          <div className="leader-attend">👥 {v.totalAttending} attending across all matches</div>
+                          {v.voters.size > 0 && <div className="leader-voters">Voted: {[...v.voters].map(resolveName).join(", ")}</div>}
+                        </div>
+                        <div className="leader-votes">{v.totalVotes}</div>
+                      </div>
+                    ));
+              })()}
             </div>
           )}
 
