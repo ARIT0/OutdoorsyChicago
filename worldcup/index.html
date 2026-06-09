@@ -219,8 +219,12 @@
 
     /* ── match card ── */
     .match-card { background: #1a1e2d; border-bottom: 1px solid #1e2333; border-left: 3px solid #2d7a2d; }
+    .match-card.past { opacity: 0.38; }
+    .match-card.past .team-chip { text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.4); }
+    .match-card.past .match-header:hover { background: none; cursor: default; }
     .match-header { display: flex; align-items: center; padding: 10px 14px; gap: 8px; flex-wrap: wrap; cursor: pointer; user-select: none; }
     .match-header:hover { background: #1e2438; }
+    .today-anchor { scroll-margin-top: calc(var(--nav-h, 57px) + 148px); }
     .match-teams { display: flex; align-items: center; gap: 6px; flex: 1; flex-wrap: wrap; min-width: 0; }
     .team-chip {
       border-radius: 4px; padding: 5px 12px; font-size: 16px;
@@ -299,6 +303,8 @@
     .plan-venue-name { font-size: 13px; font-weight: 700; color: #c8a200; margin-bottom: 3px; }
     .plan-venue-addr { font-size: 11px; color: #555; margin-bottom: 4px; }
     .plan-attend { font-size: 11px; color: #4caf50; }
+    .plan-attendees { font-size: 11px; color: #777; margin-top: 3px; font-style: italic; }
+    .plan-attendees strong { color: #a0c8e0; font-style: normal; }
     .cancel-plan {
       display: block; margin-top: 8px; background: none;
       border: 1px solid #2a2f3e; border-radius: 5px;
@@ -341,6 +347,23 @@
     }
     .subtab.active { background: #c8a200; border-color: #c8a200; color: #000; }
     .subtab:hover:not(.active) { border-color: #555; color: #aaa; }
+
+    /* ── WhatsApp banner ── */
+    .wa-banner {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: 10px 16px;
+      background: #0d1f12; border-bottom: 1px solid #1a4a2a;
+    }
+    .wa-link {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: #1a4a2a; border: 1px solid #25d366;
+      border-radius: 20px; padding: 7px 16px;
+      color: #25d366; font-size: 13px; font-weight: 700;
+      text-decoration: none; font-family: inherit;
+      transition: background .15s;
+    }
+    .wa-link:hover { background: #1e5c30; }
+    .wa-banner-text { font-size: 12px; color: #555; }
 
     /* ── content padding ── */
     .content { padding-bottom: 80px; }
@@ -391,7 +414,7 @@
   </script>
 
   <script type="text/babel">
-    const { useState, useEffect, useCallback } = React;
+    const { useState, useEffect, useCallback, useRef } = React;
 
     const f = () => "";
 
@@ -516,6 +539,23 @@
     const STAGES = ["All","Group Stage","Round of 32","Round of 16","Quarter-Final","Semi-Final","Final"];
     const ACCESS_PASS = "chicago2026";
 
+    // Parse "Thu Jun 12" or "Wed Jul 1" into a JS Date (year 2026, CDT = UTC-5)
+    const MONTH_MAP = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    function matchDateObj(m) {
+      const parts = m.date.split(" "); // ["Thu","Jun","12"]
+      const month = MONTH_MAP[parts[1]];
+      const day   = parseInt(parts[2]);
+      // Treat end of match day in CDT (UTC-5): a game is "past" after midnight CDT = 05:00 UTC next day
+      return new Date(Date.UTC(2026, month, day + 1, 5, 0, 0));
+    }
+    function isPast(m) { return matchDateObj(m) < new Date(); }
+    function isToday(m) {
+      const now = new Date();
+      const d = matchDateObj(m);
+      const prev = new Date(d); prev.setUTCDate(prev.getUTCDate() - 1);
+      return now >= prev && now < d;
+    }
+
     // Hashed UID — PIN never stored in plaintext in Firestore
     async function makeUID(name, pin) {
       const raw = name.trim().toLowerCase() + ":" + pin.trim();
@@ -539,6 +579,14 @@
       const [modal,    setModal]    = useState(null);
       const [flash,    setFlash]    = useState("");
       const [form,     setForm]     = useState({name:"", address:"", limit:""});
+      const todayRef = useRef(null);
+
+      // Auto-scroll to today's first match only when there are past games to skip
+      useEffect(() => {
+        if (tab === "schedule" && todayRef.current && MATCHES.some(isPast)) {
+          setTimeout(() => todayRef.current?.scrollIntoView({behavior:"smooth", block:"start"}), 120);
+        }
+      }, [tab]);
 
       const showFlash = msg => { setFlash(msg); setTimeout(() => setFlash(""), 2500); };
       const resolveName = uid => nameMap[uid] || uid.slice(0,8) + "…";
@@ -677,6 +725,10 @@
             </div>
             <div className="header-right">
               {flash && <span className="save-flash">{flash}</span>}
+              <a href="https://chat.whatsapp.com/LVMFAkKBIqdFijOuBDuGJ1" target="_blank" rel="noopener noreferrer"
+                style={{display:"flex",alignItems:"center",gap:5,background:"#1a4a2a",border:"1px solid #25d36699",borderRadius:20,padding:"5px 12px",color:"#25d366",fontSize:12,fontWeight:700,textDecoration:"none",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+                💬 Sports Subchat
+              </a>
               <span className="username-chip">👤 {userName}</span>
             </div>
           </header>
@@ -715,35 +767,55 @@
                   ))}
                 </div>
               </div>
-              {Object.entries(byDate).map(([date, matches]) => (
-                <div key={date}>
-                  <div className="date-header">{date}</div>
-                  {matches.map(m => (
-                    <MatchCard key={m.id} match={m}
-                      venues={venues[m.id]||[]}
-                      userUID={userUID}
-                      resolveName={resolveName}
-                      expanded={expanded === m.id}
-                      onToggle={() => setExpanded(expanded===m.id ? null : m.id)}
-                      onVote={vote}
-                      onAttend={(vid, isAtt, v) => attend(m.id, vid, isAtt, v)}
-                      onDelete={deleteVenue}
-                      onAddVenue={() => { setModal({matchId: m.id}); setForm({name:"", address:"", limit:""}); }}
-                    />
-                  ))}
-                </div>
-              ))}
+              {(() => {
+                let firstUpcomingSet = false;
+                return Object.entries(byDate).map(([date, matches]) => {
+                  const allPast = matches.every(isPast);
+                  const isFirstUpcoming = !allPast && !firstUpcomingSet;
+                  if (isFirstUpcoming) firstUpcomingSet = true;
+                  return (
+                    <div key={date}>
+                      <div ref={isFirstUpcoming ? todayRef : null} className={`date-header${isFirstUpcoming?" today-anchor":""}`} style={allPast ? {opacity:0.4} : {}}>{date}</div>
+                      {matches.map(m => (
+                        <MatchCard key={m.id} match={m}
+                          past={isPast(m)}
+                          venues={venues[m.id]||[]}
+                          userUID={userUID}
+                          resolveName={resolveName}
+                          expanded={expanded === m.id}
+                          onToggle={() => !isPast(m) && setExpanded(expanded===m.id ? null : m.id)}
+                          onVote={vote}
+                          onAttend={(vid, isAtt, v) => attend(m.id, vid, isAtt, v)}
+                          onDelete={deleteVenue}
+                          onAddVenue={() => { setModal({matchId: m.id}); setForm({name:"", address:"", limit:""}); }}
+                        />
+                      ))}
+                    </div>
+                  );
+                });
+              })()}
             </div>
           )}
 
           {tab === "myplans" && (
             <div className="content">
               <div className="section-title">📌 Your Watch Party Plans</div>
+              <div className="wa-banner">
+                <span className="wa-banner-text">
+                  Chat about watch parties in the<br/>
+                  <strong style={{color:"#e8e8e8",fontWeight:600}}>Outdoorsy Chicago WhatsApp Community</strong>
+                </span>
+                <a className="wa-link" href="https://chat.whatsapp.com/LVMFAkKBIqdFijOuBDuGJ1" target="_blank" rel="noopener noreferrer">
+                  💬 Sports Subchat
+                </a>
+              </div>
               {planMatches.length === 0
                 ? <div className="empty-state"><div className="empty-icon">🍺</div>No plans yet!<br/>Browse the schedule and tap "+ Going" at any venue.</div>
                 : planMatches.map(m => {
                     const vid = myPlans[m.id];
                     const v = (venues[m.id]||[]).find(x => x.id === vid);
+                    const others = v ? (v.attendees||[]).filter(uid => uid !== userUID) : [];
+                    const otherNames = others.slice(0,8).map(resolveName);
                     return (
                       <div key={m.id} className="plan-card">
                         <span className="plan-stage" style={{background:(STAGE_COLORS[m.stage]||"#2d7a2d")+"33", color:STAGE_COLORS[m.stage]||"#2d7a2d"}}>{m.stage}</span>
@@ -754,6 +826,12 @@
                               <div className="plan-venue-name">📍 {v.name}</div>
                               {v.address && <div className="plan-venue-addr">{v.address}</div>}
                               <div className="plan-attend">👥 {(v.attendees||[]).length}{v.limit?`/${v.limit}`:""} attending</div>
+                              {others.length > 0
+                                ? <div className="plan-attendees">
+                                    Also going: <strong>{otherNames.join(", ")}{others.length > 8 ? ` +${others.length - 8} more` : ""}</strong>
+                                  </div>
+                                : <div className="plan-attendees">You're the first one going — invite others!</div>
+                              }
                             </div>
                           : <div style={{color:"#555",fontSize:12}}>Venue removed</div>
                         }
@@ -929,14 +1007,14 @@
     }
 
     // ── MatchCard ─────────────────────────────────────────────────────────────
-    function MatchCard({match, venues, userUID, resolveName, expanded, onToggle, onVote, onAttend, onDelete, onAddVenue}) {
+    function MatchCard({match, past, venues, userUID, resolveName, expanded, onToggle, onVote, onAttend, onDelete, onAddVenue}) {
       const sc = STAGE_COLORS[match.stage] || "#2d7a2d";
       const sorted = [...venues].sort((a,b) => (b.votes||[]).length - (a.votes||[]).length);
       const top = sorted[0];
       const isGoingAny = venues.some(v => (v.attendees||[]).includes(userUID));
 
       return (
-        <div className="match-card" style={{borderLeftColor: sc}}>
+        <div className={`match-card${past?" past":""}`} style={{borderLeftColor: sc}}>
           <div className="match-header" onClick={onToggle}>
             <div className="match-teams">
               <span className="team-chip" style={{background:sc+"22", border:`1px solid ${sc}44`}}>{f(match.team1)} {match.team1}</span>
