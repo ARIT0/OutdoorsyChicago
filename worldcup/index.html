@@ -1024,7 +1024,7 @@
             <div className="match-meta">
               {match.group && <span className="group-tag">Group {match.group}</span>}
               <span className="time-tag">{match.time} CDT</span>
-              {venues.length > 0 && <span className="venue-count">📍{venues.length}</span>}
+              {venues.length > 0 && <span className="venue-count">📍 {venues.length} suggestion{venues.length !== 1 ? "s" : ""}</span>}
               {isGoingAny && <span className="going-tag">✓ Going</span>}
             </div>
             <span className="expand-arrow">{expanded ? "▲" : "▼"}</span>
